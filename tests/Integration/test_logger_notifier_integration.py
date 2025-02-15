@@ -1,6 +1,6 @@
 from src.logger import Logger
 from src.notifier import Notifier
-import unittest
+
 
 def test_logger_notifier_integration(capsys):
     logger = Logger()

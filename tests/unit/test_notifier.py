@@ -1,5 +1,5 @@
 from src.notifier import Notifier
-import unittest
+
 
 def test_notify(capsys):
     notifier = Notifier()

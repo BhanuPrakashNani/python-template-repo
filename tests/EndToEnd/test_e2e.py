@@ -1,7 +1,7 @@
 from src.calculator import Calculator
 from src.logger import Logger
 from src.notifier import Notifier
-import unittest
+
 
 def test_e2e_workflow(capsys):
     calc = Calculator()
