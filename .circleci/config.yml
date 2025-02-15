@@ -15,7 +15,7 @@ jobs:
           # command: pytest tests/ --junitxml=test-results/junit.xml --cov=src --cov-report=xml
           command: |
             mkdir -p test-results
-            nose2 --with-coverage --junit-xml --junit-xml-path=test-results/junit.xml
+            nose2 --plugin=nose2.plugins.junitxml --junit-xml-path=test-results/junit.xml --with-coverage
       - store_test_results:
           path: test-results/
       - store_artifacts:
@@ -47,6 +47,9 @@ jobs:
       - run:
           name: Install dependencies
           command: pip install -r requirements.txt
+      - run:
+          name: Install safety
+          command: pip install safety
       - run:
           name: Run Safety (dependency scanning)
           command: safety check --full-report
