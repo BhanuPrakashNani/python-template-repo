@@ -1,0 +1,6 @@
+[lint]
+select = ["ALL"]
+ignore = [
+    "ANN101",  # Disable missing type annotation for self in methods
+    "ANN102",  # Disable missing type annotation for cls in classmethods
+]
