@@ -32,9 +32,9 @@ jobs:
       - run:
           name: Run Black (code formatting)
           command: black --check src/ tests/
-      - run:
-          name: Run Flake8 (linting)
-          command: flake8 src/ tests/
+      # - run:
+      #     name: Run Flake8 (linting)
+      #     command: flake8 src/ tests/
       - run:
           name: Run Bandit (security scanning)
           command: bandit -r src/

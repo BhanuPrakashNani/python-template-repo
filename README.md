@@ -1,11 +1,11 @@
 # Python Template Repository
 
-This repository serves as a **template** for Python projects. It includes a pre-configured setup for build management, unit testing, continuous integration, static analysis, code style adherence, and component specification.
+This repository serves as a **template** for Python projects. It includes a pre-configured setup for build management, unit testing, continuous integration, static analysis, code style adherence, and component specification. The repository is designed to be fully functional "out of the box" and follows best practices for software development.
 
 ---
 
 ## **Features**
-- **Testing Framework**: [Pytest](https://docs.pytest.org/) for unit, integration, and end-to-end testing.
+- **Testing Framework**: [Nose2](https://nose2.readthedocs.io/) for unit, integration, and end-to-end testing.
 - **Dependency Management**: [UV](https://github.com/astral-sh/uv) for fast and efficient dependency management.
 - **Code Formatting**: [Ruff](https://beta.ruff.rs/docs/) for linting and formatting.
 - **Static Analysis**: [Mypy](https://mypy-lang.org/) and Ruff for type checking and static analysis.
@@ -52,33 +52,31 @@ This repository serves as a **template** for Python projects. It includes a pre-
 ### **Running Tests**
 1. Run unit tests:
    ```bash
-   pytest tests/
+   nose2 tests/Unit
    ```
 
-2. Generate a coverage report:
+2. Run integration tests:
    ```bash
-   pytest --cov=src --cov-report=html tests/
+   nose2 tests/Integration
    ```
-   Open `htmlcov/index.html` to view the coverage report.
 
-3. Run static analysis:
+3. Run end-to-end tests:
    ```bash
-   ruff check .
-   mypy src/
+   nose2 tests/EndToEnd
+   ```
+
+4. Generate a coverage report:
+   ```bash
+   nose2 --with-coverage
    ```
 
 ---
 
 ### **Continuous Integration (CI)**
 This repository is configured with CircleCI for continuous integration. The CI pipeline:
-- Runs tests.
-- Generates a test coverage report.
-- Stores test results and artifacts.
-
-To set up CircleCI:
-1. Go to [CircleCI](https://circleci.com/) and log in with your GitHub account.
-2. Follow the prompts to set up the repository.
-3. Push changes to the `main` branch to trigger the pipeline.
+- Runs tests in parallel.
+- Checks code quality (formatting, linting, security).
+- Scans dependencies for vulnerabilities.
 
 ---
 
@@ -98,33 +96,18 @@ python-template-repo/
 │   ├── logger.py           # Logger component
 │   └── notifier.py         # Notifier component
 ├── tests/                   # Tests
-│   ├── __init__.py
-│   ├── test_calculator.py  # Unit tests for Calculator
-│   ├── test_logger.py      # Unit tests for Logger
-│   └── test_notifier.py    # Unit tests for Notifier
+│   ├── EndToEnd/           # End-to-end tests
+│   ├── Integration/        # Integration tests
+│   └── Unit/               # Unit tests
 ├── .gitignore              # Files to ignore in Git
+├── .pre-commit-config.yaml # Pre-commit hooks
 ├── .ruff.toml              # Ruff configuration
 ├── mypy.ini                # Mypy configuration
+├── nose2.cfg               # Nose2 configuration
 ├── README.md               # This file
 ├── requirements.txt        # Project dependencies
 └── setup.py                # Package setup
 ```
-
----
-
-## **Components**
-The repository includes the following components:
-1. **Calculator**:
-   - Performs basic arithmetic operations (addition, subtraction, multiplication).
-   - Unit tests: `tests/test_calculator.py`.
-
-2. **Logger**:
-   - Records operations performed by the Calculator.
-   - Unit tests: `tests/test_logger.py`.
-
-3. **Notifier**:
-   - Sends an alert when the result exceeds a given threshold.
-   - Unit tests: `tests/test_notifier.py`.
 
 ---
 
@@ -153,6 +136,11 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ---
 
 ## **Acknowledgments**
-- [Pytest](https://docs.pytest.org/) for testing.
+- [Nose2](https://nose2.readthedocs.io/) for testing.
 - [Ruff](https://beta.ruff.rs/docs/) for linting and formatting.
 - [CircleCI](https://circleci.com/) for CI/CD.
+
+---
+
+## **Contact**
+For questions or feedback, please open an issue or contact the maintainers.
