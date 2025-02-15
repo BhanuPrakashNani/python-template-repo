@@ -1,4 +1,5 @@
 from src.calculator import Calculator
+import unittest
 
 def test_add():
     calc = Calculator()

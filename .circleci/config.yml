@@ -2,6 +2,7 @@ version: 2.1
 
 jobs:
   test:
+    parallelism: 4
     docker:
       - image: cimg/python:3.11
     steps:
@@ -11,14 +12,49 @@ jobs:
           command: pip install -r requirements.txt
       - run:
           name: Run tests
-          command: pytest tests/ --junitxml=test-results/junit.xml --cov=src --cov-report=xml
+          # command: pytest tests/ --junitxml=test-results/junit.xml --cov=src --cov-report=xml
+          command: |
+            mkdir -p test-results
+            nose2 --with-coverage --junit-xml --junit-xml-path=test-results/junit.xml
       - store_test_results:
           path: test-results/
       - store_artifacts:
           path: coverage.xml
 
+  code_quality:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: pip install -r requirements.txt
+      - run:
+          name: Run Black (code formatting)
+          command: black --check src/ tests/
+      - run:
+          name: Run Flake8 (linting)
+          command: flake8 src/ tests/
+      - run:
+          name: Run Bandit (security scanning)
+          command: bandit -r src/
+
+  dependency_scanning:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: pip install -r requirements.txt
+      - run:
+          name: Run Safety (dependency scanning)
+          command: safety check --full-report
+
 workflows:
   version: 2
-  test-workflow:
+  test_and_scan:
     jobs:
       - test
+      - code_quality
+      - dependency_scanning

@@ -1,5 +1,5 @@
 from src.logger import Logger
-
+import unittest
 
 def test_log(capsys):
     logger = Logger()

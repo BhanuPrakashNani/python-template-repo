@@ -1,5 +1,6 @@
 from src.calculator import Calculator
 from src.logger import Logger
+import unittest
 
 def test_calculator_logger_integration(capsys):
     calc = Calculator()
