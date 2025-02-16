@@ -1,8 +1,8 @@
 version: 2.1
 
 jobs:
-  build:
-    working_directory: /tmp
+  test:
+    parallelism: 4
     docker:
       - image: cimg/python:3.11
     steps:
@@ -16,12 +16,15 @@ jobs:
           name: Run tests
           command: |
             mkdir -p test-results
-            nose2 --plugin=nose2.plugins.junitxml --junit-xml-path=test-results/junit.xml --with-coverage tests/
+            nose2 --plugin=nose2.plugins.junitxml --junit-xml-path=test-results/junit.xml --with-coverage
 
       - run:
-          name: Generate coverage report
-          command: |
-            coverage xml -o coverage.xml
+          name: List test-results directory
+          command: ls -la test-results/
+
+      - run:
+          name: Change permissions
+          command: chmod -R 755 test-results/
 
       - store_test_results:
           path: test-results/
@@ -34,16 +37,12 @@ jobs:
           path: coverage.xml
           destination: coverage-report
 
-      - store_artifacts:
-          path: /tmp/artifacts
-          destination: custom-artifacts
-
       - run:
           name: Create custom artifacts
           command: |
+            mkdir -p /tmp/artifacts
             echo "This is a custom artifact file" > /tmp/artifacts/custom-artifact-1.txt
-            mkdir -p /tmp/artifacts/subdir
-            echo "This is another artifact in a subdirectory" > /tmp/artifacts/subdir/custom-artifact-2.txt
+            echo "This is another custom artifact file" > /tmp/artifacts/custom-artifact-2.txt
 
       - store_artifacts:
           path: /tmp/artifacts
@@ -54,15 +53,19 @@ jobs:
       - image: cimg/python:3.11
     steps:
       - checkout
+
       - run:
           name: Install dependencies
           command: pip install -r requirements.txt
+
       - run:
           name: Run Black (code formatting)
           command: black src/ tests/
+
       # - run:
       #     name: Run Flake8 (linting)
       #     command: flake8 src/ tests/
+
       # - run:
       #     name: Run Bandit (security scanning)
       #     command: bandit -r src/
@@ -72,12 +75,15 @@ jobs:
       - image: cimg/python:3.11
     steps:
       - checkout
+
       - run:
           name: Install dependencies
           command: pip install -r requirements.txt
+
       - run:
           name: Install safety
           command: pip install safety
+
       - run:
           name: Run Safety (dependency scanning)
           command: safety check --full-report
