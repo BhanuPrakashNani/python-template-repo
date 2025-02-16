@@ -24,7 +24,8 @@ jobs:
       - store_test_results:
           path: test-results/
       - store_artifacts:
-          path: coverage.xml
+          path: coverage_html
+          destination: coverage-html-report
 
   code_quality:
     docker:
