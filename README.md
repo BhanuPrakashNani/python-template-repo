@@ -8,6 +8,7 @@ This repository serves as a **template** for Python projects. It includes a pre-
 
 ## Features
 - **Testing Framework**: [Nose2](https://nose2.readthedocs.io/) for unit, integration, and end-to-end testing.
+- This repository can also be used with [pytest](https://docs.pytest.org/), a popular testing framework. However, for extra credit, we have disabled `pytest` and are currently using `nose2` as an alternative.
 - **Dependency Management**: [UV](https://github.com/astral-sh/uv) for fast and efficient dependency management.
 - **Code Formatting**: [Ruff](https://beta.ruff.rs/docs/) for linting and formatting.
 - **Static Analysis**: [Mypy](https://mypy-lang.org/) and Ruff for type checking and static analysis.
