@@ -6,7 +6,7 @@ Here’s the updated `README.md` file with all the necessary improvements and ad
 
 This repository serves as a **template** for Python projects. It includes a pre-configured setup for build management, unit testing, continuous integration, static analysis, code style adherence, and component specification. The repository is designed to be fully functional "out of the box" and follows best practices for software development.
 
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/<your-username>/python-template-repo/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/<your-username>/python-template-repo/tree/main)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/BhanuPrakashNani/python-template-repo/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/BhanuPrakashNani/python-template-repo/tree/main)
 
 ---
 
