@@ -1,4 +1,4 @@
-from src.logger import Logger
+from src.components.logger import Logger
 
 
 def test_log(capsys):

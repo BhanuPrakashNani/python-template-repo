@@ -1,6 +1,6 @@
-from src.calculator import Calculator
-from src.logger import Logger
-from src.notifier import Notifier
+from src.components.calculator import Calculator
+from src.components.logger import Logger
+from src.components.notifier import Notifier
 
 
 def test_e2e_workflow(capsys):

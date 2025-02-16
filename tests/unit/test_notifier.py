@@ -1,4 +1,4 @@
-from src.notifier import Notifier
+from src.components.notifier import Notifier
 
 
 def test_notify(capsys):
