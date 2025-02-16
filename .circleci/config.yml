@@ -19,6 +19,14 @@ jobs:
             nose2 --plugin=nose2.plugins.junitxml --junit-xml-path=test-results/junit.xml --with-coverage
 
       - run:
+          name: Generate coverage XML report
+          command: coverage xml -o coverage.xml
+
+      - run:
+          name: Generate coverage HTML report
+          command: coverage html -d coverage-html
+
+      - run:
           name: List test-results directory
           command: ls -la test-results/
 
@@ -36,6 +44,10 @@ jobs:
       - store_artifacts:
           path: coverage.xml
           destination: coverage-report
+
+      - store_artifacts:
+          path: coverage-html/
+          destination: coverage-html
 
       - run:
           name: Create custom artifacts
@@ -61,14 +73,6 @@ jobs:
       - run:
           name: Run Black (code formatting)
           command: black src/ tests/
-
-      # - run:
-      #     name: Run Flake8 (linting)
-      #     command: flake8 src/ tests/
-
-      # - run:
-      #     name: Run Bandit (security scanning)
-      #     command: bandit -r src/
 
   dependency_scanning:
     docker:
