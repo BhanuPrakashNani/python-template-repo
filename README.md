@@ -1,10 +1,16 @@
+Here’s the updated `README.md` file with all the necessary improvements and additions, including references to the `component.md` file and a more polished structure:
+
+---
+
 # Python Template Repository
 
 This repository serves as a **template** for Python projects. It includes a pre-configured setup for build management, unit testing, continuous integration, static analysis, code style adherence, and component specification. The repository is designed to be fully functional "out of the box" and follows best practices for software development.
 
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/<your-username>/python-template-repo/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/<your-username>/python-template-repo/tree/main)
+
 ---
 
-## **Features**
+## Features
 - **Testing Framework**: [Nose2](https://nose2.readthedocs.io/) for unit, integration, and end-to-end testing.
 - **Dependency Management**: [UV](https://github.com/astral-sh/uv) for fast and efficient dependency management.
 - **Code Formatting**: [Ruff](https://beta.ruff.rs/docs/) for linting and formatting.
@@ -12,19 +18,20 @@ This repository serves as a **template** for Python projects. It includes a pre-
 - **Code Coverage**: [Coverage.py](https://coverage.readthedocs.io/) for measuring test coverage.
 - **CI/CD**: [CircleCI](https://circleci.com/) for continuous integration and deployment.
 - **Pre-configured Templates**: Issue and pull request templates for standardized contributions.
+- **Components**: Includes three components (`Calculator`, `Logger`, and `Notifier`) with unit, integration, and end-to-end tests.
 
 ---
 
-## **Getting Started**
+## Getting Started
 
-### **Prerequisites**
+### Prerequisites
 - Python 3.11 or higher.
 - [Git](https://git-scm.com/) for version control.
 - A [CircleCI](https://circleci.com/) account for CI/CD (optional).
 
 ---
 
-### **Installation**
+### Installation
 1. Clone the repository:
    ```bash
    git clone https://github.com/<your-username>/python-template-repo.git
@@ -49,7 +56,7 @@ This repository serves as a **template** for Python projects. It includes a pre-
 
 ---
 
-### **Running Tests**
+### Running Tests
 1. Run unit tests:
    ```bash
    nose2 tests/Unit
@@ -72,15 +79,22 @@ This repository serves as a **template** for Python projects. It includes a pre-
 
 ---
 
-### **Continuous Integration (CI)**
+### Continuous Integration (CI)
 This repository is configured with CircleCI for continuous integration. The CI pipeline:
 - Runs tests in parallel.
 - Checks code quality (formatting, linting, security).
 - Scans dependencies for vulnerabilities.
+- Generates a test coverage report.
+- Stores test results and artifacts for easy access.
 
 ---
 
-## **Repository Structure**
+## Components
+For detailed documentation on the components (`Calculator`, `Logger`, and `Notifier`), see [component.md](component.md).
+
+---
+
+## Repository Structure
 ```
 python-template-repo/
 ├── .circleci/               # CircleCI configuration
@@ -91,10 +105,12 @@ python-template-repo/
 │   │   └── feature_request.md
 │   └── pull_request_template.md
 ├── src/                     # Source code
-│   ├── __init__.py
-│   ├── calculator.py        # Calculator component
-│   ├── logger.py           # Logger component
-│   └── notifier.py         # Notifier component
+│   ├── components/          # Components directory
+│   │   ├── __init__.py
+│   │   ├── calculator.py    # Calculator component
+│   │   ├── logger.py        # Logger component
+│   │   └── notifier.py      # Notifier component
+│   └── __init__.py
 ├── tests/                   # Tests
 │   ├── EndToEnd/           # End-to-end tests
 │   ├── Integration/        # Integration tests
@@ -105,13 +121,14 @@ python-template-repo/
 ├── mypy.ini                # Mypy configuration
 ├── nose2.cfg               # Nose2 configuration
 ├── README.md               # This file
+├── component.md            # Component documentation
 ├── requirements.txt        # Project dependencies
 └── setup.py                # Package setup
 ```
 
 ---
 
-## **Contributing**
+## Contributing
 We welcome contributions! Please follow these steps:
 1. Fork the repository.
 2. Create a new branch:
@@ -130,17 +147,17 @@ We welcome contributions! Please follow these steps:
 
 ---
 
-## **License**
+## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
-## **Acknowledgments**
+## Acknowledgments
 - [Nose2](https://nose2.readthedocs.io/) for testing.
 - [Ruff](https://beta.ruff.rs/docs/) for linting and formatting.
 - [CircleCI](https://circleci.com/) for CI/CD.
 
 ---
 
-## **Contact**
+## Contact
 For questions or feedback, please open an issue or contact the maintainers.
