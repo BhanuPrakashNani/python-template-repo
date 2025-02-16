@@ -12,10 +12,15 @@ jobs:
           command: pip install -r requirements.txt
       - run:
           name: Run tests
-          # command: pytest tests/ --junitxml=test-results/junit.xml --cov=src --cov-report=xml
           command: |
             mkdir -p test-results
             nose2 --plugin=nose2.plugins.junitxml --junit-xml-path=test-results/junit.xml --with-coverage
+      - run:
+          name: List test-results directory
+          command: ls -la test-results/
+      - run:
+          name: Change permissions
+          command: chmod -R 755 test-results/
       - store_test_results:
           path: test-results/
       - store_artifacts:
