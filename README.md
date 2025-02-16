@@ -1,10 +1,6 @@
-Here’s the updated `README.md` file with all the necessary improvements and additions, including references to the `component.md` file and a more polished structure:
-
----
-
 # Python Template Repository
 
-This repository serves as a **template** for Python projects. It includes a pre-configured setup for build management, unit testing, continuous integration, static analysis, code style adherence, and component specification. The repository is designed to be fully functional "out of the box" and follows best practices for software development.
+This repository serves as a **template** for Python projects. It includes a pre-configured setup for build management, unit testing, continuous integration, static analysis, code style adherence, and component specification. The repository is designed to be fully functional and follows best practices for software development.
 
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/BhanuPrakashNani/python-template-repo/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/BhanuPrakashNani/python-template-repo/tree/main)
 
