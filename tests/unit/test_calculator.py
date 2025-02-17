@@ -13,4 +13,4 @@ def test_subtract():
 
 def test_multiply():
     calc = Calculator()
-    assert calc.multiply(2, 3) == 5
+    assert calc.multiply(2, 3) == 6
