@@ -15,6 +15,7 @@ jobs:
             uv venv
             . .venv/bin/activate
             uv pip install -r requirements.txt
+            uv pip install -e .
 
       - run:
           name: Run tests
