@@ -18,6 +18,14 @@ jobs:
             echo 'export PATH="/root/.cargo/bin:$PATH"' >> $BASH_ENV
             source $BASH_ENV
 
+      # Create UV environment
+      - run:
+          name: Create UV Environment
+          command: |
+            uv venv .venv
+            echo 'source .venv/bin/activate' >> $BASH_ENV
+            source $BASH_ENV
+
       # Install dependencies
       - run:
           name: Install Dependencies
@@ -28,7 +36,7 @@ jobs:
       - run:
           name: Run Unit Tests
           command: |
-            mkdir test-results
+            mkdir -p test-results
             pytest src/components/*/tests/ --junitxml=test-results/unit.xml --cov=src --cov-report=xml:coverage.xml
 
       # Run integration tests
