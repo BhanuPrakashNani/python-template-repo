@@ -6,9 +6,13 @@ requires-python = ">=3.11"
 dependencies = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
-    "calculator @ file:///${PROJECT_ROOT}/src/components/calculator",
-    "logger @ file:///${PROJECT_ROOT}/src/components/logger",
-    "notifier @ file:///${PROJECT_ROOT}/src/components/notifier",
+]
+
+[project.optional-dependencies]
+test = [
+    "calculator @ file://./src/components/calculator",
+    "logger @ file://./src/components/logger",
+    "notifier @ file://./src/components/notifier",
 ]
 
 [build-system]
