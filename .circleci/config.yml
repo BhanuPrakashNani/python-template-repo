@@ -1,0 +1,101 @@
+version: 2.1
+
+jobs:
+  test:
+    parallelism: 4
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
+
+      - run:
+          name: Install dependencies
+          command: pip install -r requirements.txt
+
+      - run:
+          name: Run tests
+          command: |
+            mkdir -p test-results
+            nose2 --plugin=nose2.plugins.junitxml --junit-xml-path=test-results/junit.xml --with-coverage
+
+      - run:
+          name: Generate coverage XML report
+          command: coverage xml -o coverage.xml
+
+      - run:
+          name: Generate coverage HTML report
+          command: coverage html -d coverage-html
+
+      - run:
+          name: List test-results directory
+          command: ls -la test-results/
+
+      - run:
+          name: Change permissions
+          command: chmod -R 755 test-results/
+
+      - store_test_results:
+          path: test-results/
+
+      - store_artifacts:
+          path: test-results/junit.xml
+          destination: test-results
+
+      - store_artifacts:
+          path: coverage.xml
+          destination: coverage-report
+
+      - store_artifacts:
+          path: coverage-html/
+          destination: coverage-html
+
+      - run:
+          name: Create custom artifacts
+          command: |
+            mkdir -p /tmp/artifacts
+            echo "This is a custom artifact file" > /tmp/artifacts/custom-artifact-1.txt
+            echo "This is another custom artifact file" > /tmp/artifacts/custom-artifact-2.txt
+
+      - store_artifacts:
+          path: /tmp/artifacts
+          destination: custom-artifacts
+
+  code_quality:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
+
+      - run:
+          name: Install dependencies
+          command: pip install -r requirements.txt
+
+      - run:
+          name: Run Black (code formatting)
+          command: black src/ tests/
+
+  dependency_scanning:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
+
+      - run:
+          name: Install dependencies
+          command: pip install -r requirements.txt
+
+      - run:
+          name: Install safety
+          command: pip install safety
+
+      - run:
+          name: Run Safety (dependency scanning)
+          command: safety check --full-report
+
+workflows:
+  version: 2
+  test_and_scan:
+    jobs:
+      - test
+      - code_quality
+      - dependency_scanning
