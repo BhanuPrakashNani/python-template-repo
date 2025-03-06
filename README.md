@@ -1,160 +1,146 @@
 # Python Template Repository
 
-This repository serves as a **template** for Python projects. It includes a pre-configured setup for build management, unit testing, continuous integration, static analysis, code style adherence, and component specification. The repository is designed to be fully functional and follows best practices for software development.
+A template repository demonstrating Python best practices with UV package management, component-based architecture, and comprehensive testing.
 
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/BhanuPrakashNani/python-template-repo/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/BhanuPrakashNani/python-template-repo/tree/main)
 
----
-
 ## Features
-- **Testing Framework**: [pytest](https://docs.pytest.org/) for unit, integration, and end-to-end testing with coverage reporting.
-- **Test Coverage**: [pytest-cov](https://pytest-cov.readthedocs.io/) for measuring test coverage integrated with pytest.
-- **Dependency Management**: [UV](https://github.com/astral-sh/uv) for fast and efficient dependency management.
-- **Code Formatting**: [Ruff](https://beta.ruff.rs/docs/) for linting and formatting.
-- **Static Analysis**: [Mypy](https://mypy-lang.org/) and Ruff for type checking and static analysis.
-- **Code Coverage**: [Coverage.py](https://coverage.readthedocs.io/) for measuring test coverage.
-- **CI/CD**: [CircleCI](https://circleci.com/) for continuous integration and deployment.
-- **Pre-configured Templates**: Issue and pull request templates for standardized contributions.
-- **Components**: Includes three components (`Calculator`, `Logger`, and `Notifier`) with unit, integration, and end-to-end tests.
 
----
+- **Modern Package Management**: Uses [UV](https://github.com/astral-sh/uv) for fast, reliable Python package management
+- **Component Architecture**: Modular design with each component as a separate UV package
+- **Comprehensive Testing**: Unit tests with each component, plus integration and E2E tests
+- **Code Quality**: Ruff for linting/formatting and Mypy for type checking
+- **CI/CD**: Automated testing and quality checks with CircleCI
 
-## Getting Started
+## Project Structure
 
-### Prerequisites
-- Python 3.11 or higher.
-- [Git](https://git-scm.com/) for version control.
-- A [CircleCI](https://circleci.com/) account for CI/CD (optional).
+```
+python-template-repo/
+├── src/
+│   └── components/          # Each component is a UV package
+│       ├── calculator/
+│       ├── logger/
+│       └── notifier/
+├── tests/
+│   ├── Integration/        # Integration tests
+│   └── EndToEnd/          # End-to-end tests
+├── pyproject.toml         # Project configuration
+└── components.md         # Component documentation
+```
 
----
+## Prerequisites
 
-### Installation
-1. Clone the repository:
+- Python 3.11 or higher
+- UV package manager
+
+## Installation
+
+1. Install UV package manager:
+   ```bash
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   ```
+
+2. Clone the repository:
    ```bash
    git clone https://github.com/<your-username>/python-template-repo.git
    cd python-template-repo
    ```
 
-2. Create a virtual environment:
+3. Create virtual environment and install dependencies:
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   uv venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
    ```
 
-3. Install dependencies:
+4. Install components in development mode:
    ```bash
-   pip install -r requirements.txt
+   uv pip install -e src/components/calculator
+   uv pip install -e src/components/logger
+   uv pip install -e src/components/notifier
    ```
 
-4. Install the `src` package in editable mode:
-   ```bash
-   pip install -e .
-   ```
+## Usage
 
----
+See [components.md](components.md) for detailed component documentation and APIs.
 
 ### Running Tests
-1. Run unit tests:
+
+1. Run unit tests for a specific component:
    ```bash
-   pytest tests/unit
+   pytest src/components/calculator/tests
+   pytest src/components/logger/tests
+   pytest src/components/notifier/tests
    ```
 
-2. Run integration tests:
+2. Run all unit tests:
+   ```bash
+   pytest src/components/*/tests
+   ```
+
+3. Run integration tests:
    ```bash
    pytest tests/Integration
    ```
 
-3. Run end-to-end tests:
+4. Run end-to-end tests:
    ```bash
    pytest tests/EndToEnd
    ```
 
-4. Generate a coverage report:
+5. Run all tests with coverage:
    ```bash
-   pytest --cov=src
+   pytest --cov=src --cov-report=html
    ```
 
----
+### Code Quality
 
-### Continuous Integration (CI)
-This repository is configured with CircleCI for continuous integration. The CI pipeline:
-- Runs tests in parallel.
-- Checks code quality (formatting, linting, security).
-- Scans dependencies for vulnerabilities.
-- Generates a test coverage report.
-- Stores test results and artifacts for easy access.
-
----
-
-## Components
-For detailed documentation on the components (`Calculator`, `Logger`, and `Notifier`), see [component.md](component.md).
-
----
-
-## Repository Structure
-```
-python-template-repo/
-├── .circleci/               # CircleCI configuration
-│   └── config.yml
-├── .github/                 # GitHub templates
-│   ├── ISSUE_TEMPLATE/
-│   │   ├── bug_report.md
-│   │   └── feature_request.md
-│   └── pull_request_template.md
-├── src/                     # Source code
-│   ├── components/          # Components directory
-│   │   ├── __init__.py
-│   │   ├── calculator.py    # Calculator component
-│   │   ├── logger.py        # Logger component
-│   │   └── notifier.py      # Notifier component
-│   └── __init__.py
-├── tests/                   # Tests
-│   ├── EndToEnd/           # End-to-end tests
-│   ├── Integration/        # Integration tests
-│   └── Unit/               # Unit tests
-├── .gitignore              # Files to ignore in Git
-├── .pre-commit-config.yaml # Pre-commit hooks
-├── .ruff.toml              # Ruff configuration
-├── mypy.ini                # Mypy configuration
-├── nose2.cfg               # Nose2 configuration
-├── README.md               # This file
-├── component.md            # Component documentation
-├── requirements.txt        # Project dependencies
-└── setup.py                # Package setup
-```
-
----
-
-## Contributing
-We welcome contributions! Please follow these steps:
-1. Fork the repository.
-2. Create a new branch:
+1. Run linting:
    ```bash
-   git checkout -b feature/your-feature-name
+   ruff check .
    ```
-3. Make your changes and commit them:
-   ```bash
-   git commit -m "Add your feature"
-   ```
-4. Push to the branch:
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-5. Open a pull request and follow the template.
 
----
+2. Run type checking:
+   ```bash
+   mypy src/components/*/src
+   ```
+
+## CI/CD Pipeline
+
+This repository uses CircleCI for continuous integration and deployment:
+
+- **Build Status**: [![CircleCI](https://dl.circleci.com/status-badge/img/gh/BhanuPrakashNani/python-template-repo/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/BhanuPrakashNani/python-template-repo/tree/main)
+
+The pipeline:
+1. Installs UV and project dependencies
+2. Runs linting and type checking
+3. Executes unit, integration, and E2E tests
+4. Generates coverage reports
+
+Example builds:
+- [Passed Build](https://app.circleci.com/pipelines/github/BhanuPrakashNani/python-template-repo/latest/passing)
+- [Failed Build](https://app.circleci.com/pipelines/github/BhanuPrakashNani/python-template-repo/latest/failing)
+- [Coverage Report](https://app.circleci.com/pipelines/github/BhanuPrakashNani/python-template-repo/latest/artifacts)
+
+## Creating New Components
+
+1. Create component structure:
+   ```
+   src/components/my_component/
+   ├── pyproject.toml
+   ├── __init__.py
+   ├── my_component.py
+   └── tests/
+       ├── __init__.py
+       └── test_my_component.py
+   ```
+
+2. Add UV package configuration in pyproject.toml
+3. Define public API in __init__.py
+4. Implement component functionality
+5. Add unit tests
+
+See [components.md](components.md) for detailed instructions.
 
 ## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
----
-
-## Acknowledgments
-- [pytest](https://docs.pytest.org/) for testing.
-- [Ruff](https://beta.ruff.rs/docs/) for linting and formatting.
-- [CircleCI](https://circleci.com/) for CI/CD.
-
----
-
-## Contact
-For questions or feedback, please open an issue or contact the maintainers.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

@@ -1,110 +1,54 @@
 version: 2.1
 
+orbs:
+  python: circleci/python@2.1
+
 jobs:
-  test:
-    parallelism: 4
+  build-and-test:
     docker:
       - image: cimg/python:3.11
     steps:
       - checkout
-
       - run:
-          name: Install UV and dependencies
+          name: Install UV
           command: |
             curl -LsSf https://astral.sh/uv/install.sh | sh
-            uv venv
-            . .venv/bin/activate
-            uv pip install -r requirements.txt
-            uv pip install -e .
-
       - run:
-          name: Run tests
+          name: Setup Project
           command: |
-            mkdir -p test-results
-            pytest tests/ --junitxml=test-results/junit.xml --cov=src --cov-report=xml --cov-report=html
-
+            uv venv
+            uv pip install pytest pytest-cov ruff mypy
+            uv pip install -e src/components/calculator
+            uv pip install -e src/components/logger
+            uv pip install -e src/components/notifier
       - run:
-          name: Generate coverage XML report
-          command: coverage xml -o coverage.xml
-
+          name: Run Linting
+          command: |
+            ruff check .
+            mypy src/components/*/src
       - run:
-          name: Generate coverage HTML report
-          command: coverage html -d coverage-html
-
+          name: Run Unit Tests
+          command: |
+            pytest src/components/*/tests -v --junitxml=test-results/junit.xml
       - run:
-          name: List test-results directory
-          command: ls -la test-results/
-
+          name: Run Integration Tests
+          command: |
+            pytest tests/Integration -v
       - run:
-          name: Change permissions
-          command: chmod -R 755 test-results/
-
+          name: Run E2E Tests
+          command: |
+            pytest tests/EndToEnd -v
+      - run:
+          name: Generate Coverage Report
+          command: |
+            pytest --cov=src --cov-report=xml --cov-report=html
       - store_test_results:
-          path: test-results/
-
+          path: test-results
       - store_artifacts:
-          path: test-results/junit.xml
-          destination: test-results
-
-      - store_artifacts:
-          path: coverage.xml
+          path: htmlcov
           destination: coverage-report
 
-      - store_artifacts:
-          path: coverage-html/
-          destination: coverage-html
-
-      - run:
-          name: Create custom artifacts
-          command: |
-            mkdir -p /tmp/artifacts
-            echo "This is a custom artifact file" > /tmp/artifacts/custom-artifact-1.txt
-            echo "This is another custom artifact file" > /tmp/artifacts/custom-artifact-2.txt
-
-      - store_artifacts:
-          path: /tmp/artifacts
-          destination: custom-artifacts
-
-  code_quality:
-    docker:
-      - image: cimg/python:3.11
-    steps:
-      - checkout
-
-      - run:
-          name: Install UV and dependencies
-          command: |
-            curl -LsSf https://astral.sh/uv/install.sh | sh
-            uv pip install -r requirements.txt
-
-      - run:
-          name: Run Black (code formatting)
-          command: black src/ tests/
-
-  dependency_scanning:
-    docker:
-      - image: cimg/python:3.11
-    steps:
-      - checkout
-
-      - run:
-          name: Install UV and dependencies
-          command: |
-            curl -LsSf https://astral.sh/uv/install.sh | sh
-            uv pip install -r requirements.txt
-
-      - run:
-          name: Install safety
-          command: pip install safety
-
-      - run:
-          name: Run Safety (dependency scanning)
-          command: safety scan --full-report
-
 workflows:
-  version: 2
-  test_and_scan:
+  main:
     jobs:
-      - test
-      - code_quality
-      - dependency_scanning
+      - build-and-test

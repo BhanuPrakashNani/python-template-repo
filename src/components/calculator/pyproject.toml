@@ -1,0 +1,14 @@
+[project]
+name = "calculator"
+version = "0.1.0"
+description = "Calculator component for arithmetic operations"
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-ra -q"

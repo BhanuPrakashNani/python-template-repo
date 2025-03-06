@@ -1,0 +1,14 @@
+[project]
+name = "notifier"
+version = "0.1.0"
+description = "Notifier component for sending alerts"
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-ra -q"
