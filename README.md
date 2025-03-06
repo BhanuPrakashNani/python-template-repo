@@ -2,13 +2,13 @@
 
 A template for creating modular Python projects with component-based architecture, proper API definitions, and comprehensive testing.
 
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/Loke7132/python-template-repo/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/Loke7132/python-template-repo/tree/main)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/BhanuPrakashNani/python-template-repo/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/BhanuPrakashNani/python-template-repo/tree/main)
 
-[View Test Results and Coverage on CircleCI](https://app.circleci.com/pipelines/github/Loke7132/python-template-repo)
+[View Test Results and Coverage on CircleCI](https://app.circleci.com/pipelines/github/BhanuPrakashNani/python-template-repo)
 
 ## CI/CD Status
 
-- **Test Results**: View all test runs in [CircleCI Dashboard](https://app.circleci.com/pipelines/github/Loke7132/python-template-repo)
+- **Test Results**: View all test runs in [CircleCI Dashboard](https://app.circleci.com/pipelines/github/BhanuPrakashNani/python-template-repo)
   - Unit Tests: See individual component test results
   - Integration Tests: Component interaction verification
   - E2E Tests: Complete workflow validation
@@ -62,7 +62,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/Loke7132/python-template-repo.git
+   git clone https://github.com/BhanuPrakashNani/python-template-repo.git
    cd python-template-repo
    ```
 
@@ -170,4 +170,4 @@ mypy .
 - [Component Architecture](components.md): Detailed explanation of the component-based design
 - [UV Documentation](https://github.com/astral-sh/uv): Modern Python package management
 - [pytest Documentation](https://docs.pytest.org/): Python testing framework
-- [CircleCI Dashboard](https://app.circleci.com/pipelines/github/Loke7132/python-template-repo): CI/CD status and test results
+- [CircleCI Dashboard](https://app.circleci.com/pipelines/github/BhanuPrakashNani/python-template-repo): CI/CD status and test results
