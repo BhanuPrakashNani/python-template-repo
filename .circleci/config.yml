@@ -13,6 +13,10 @@ jobs:
           command: pip install uv
 
       - run:
+          name: Create uv virtual environment
+          command: uv venv
+
+      - run:
           name: Install dependencies
           command: |
             uv pip install -r requirements.txt
@@ -77,6 +81,10 @@ jobs:
           command: pip install uv
 
       - run:
+          name: Create uv virtual environment
+          command: uv venv
+
+      - run:
           name: Install dependencies
           command: |
             uv pip install -r requirements.txt
@@ -95,6 +103,10 @@ jobs:
       - run:
           name: Install UV
           command: pip install uv
+
+      - run:
+          name: Create uv virtual environment
+          command: uv venv
 
       - run:
           name: Install dependencies
