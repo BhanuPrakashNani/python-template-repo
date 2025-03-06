@@ -17,37 +17,37 @@ jobs:
           command: uv venv
 
       - run:
-          name: Install dependencies
+          name: Set environment variables
           command: |
-            source .venv/bin/activate && \
-            uv pip install -r requirements.txt && \
+            echo "export PYTHONPATH=$(pwd)" >> $BASH_ENV
+            echo "source .venv/bin/activate" >> $BASH_ENV
+
+      - run:
+          name: Install dependencies and testing tools
+          command: |
+            uv pip install -r requirements.txt
             uv pip install pytest pytest-cov pytest-xdist
 
       - run:
           name: Run tests
           command: |
-            source .venv/bin/activate && \
-            mkdir -p test-results && \
+            mkdir -p test-results
             pytest --junitxml=test-results/junit.xml --cov=src --cov-report=xml --cov-report=html
 
       - run:
           name: Generate coverage XML report
-          command: |
-            source .venv/bin/activate && \
-            coverage xml -o coverage.xml
+          command: coverage xml -o coverage.xml
 
       - run:
           name: Generate coverage HTML report
-          command: |
-            source .venv/bin/activate && \
-            coverage html -d coverage-html
+          command: coverage html -d coverage-html
 
       - run:
           name: List test-results directory
           command: ls -la test-results/
 
       - run:
-          name: Change permissions
+          name: Change permissions on test-results
           command: chmod -R 755 test-results/
 
       - store_test_results:
@@ -68,8 +68,8 @@ jobs:
       - run:
           name: Create custom artifacts
           command: |
-            mkdir -p /tmp/artifacts && \
-            echo "This is a custom artifact file" > /tmp/artifacts/custom-artifact-1.txt && \
+            mkdir -p /tmp/artifacts
+            echo "This is a custom artifact file" > /tmp/artifacts/custom-artifact-1.txt
             echo "This is another custom artifact file" > /tmp/artifacts/custom-artifact-2.txt
 
       - store_artifacts:
@@ -91,17 +91,20 @@ jobs:
           command: uv venv
 
       - run:
-          name: Install dependencies
+          name: Set environment variables
           command: |
-            source .venv/bin/activate && \
-            uv pip install -r requirements.txt && \
+            echo "export PYTHONPATH=$(pwd)" >> $BASH_ENV
+            echo "source .venv/bin/activate" >> $BASH_ENV
+
+      - run:
+          name: Install dependencies and Black
+          command: |
+            uv pip install -r requirements.txt
             uv pip install black
 
       - run:
           name: Run Black (code formatting)
-          command: |
-            source .venv/bin/activate && \
-            black src/ tests/
+          command: black src/ tests/
 
   dependency_scanning:
     docker:
@@ -118,17 +121,20 @@ jobs:
           command: uv venv
 
       - run:
-          name: Install dependencies
+          name: Set environment variables
           command: |
-            source .venv/bin/activate && \
-            uv pip install -r requirements.txt && \
+            echo "export PYTHONPATH=$(pwd)" >> $BASH_ENV
+            echo "source .venv/bin/activate" >> $BASH_ENV
+
+      - run:
+          name: Install dependencies and Safety
+          command: |
+            uv pip install -r requirements.txt
             uv pip install safety
 
       - run:
           name: Run Safety (dependency scanning)
-          command: |
-            source .venv/bin/activate && \
-            safety check --full-report
+          command: safety check --full-report
 
 workflows:
   version: 2
