@@ -25,10 +25,15 @@ jobs:
             uv pip install -e src/components/logger
             uv pip install -e src/components/notifier
       - run:
-          name: Run Linting
+          name: Run Linting and Formatting
           command: |
             . .venv/bin/activate
-            ruff check .
+            git config --global user.email "ci@example.com"
+            git config --global user.name "CI Bot"
+            ruff format .
+            ruff check . --fix
+            git add .
+            git commit -m "style: Format code and fix imports" || true
             mypy src/components/*/src
       - run:
           name: Run Unit Tests

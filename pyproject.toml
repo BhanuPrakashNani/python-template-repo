@@ -33,6 +33,11 @@ select = [
 ]
 ignore = []
 
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+force-single-line = true
+lines-after-imports = 2
+
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
