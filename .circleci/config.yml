@@ -19,22 +19,28 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            uv pip install -r requirements.txt
+            source .venv/bin/activate && \
+            uv pip install -r requirements.txt && \
             uv pip install pytest pytest-cov pytest-xdist
 
       - run:
           name: Run tests
           command: |
-            mkdir -p test-results
+            source .venv/bin/activate && \
+            mkdir -p test-results && \
             pytest --junitxml=test-results/junit.xml --cov=src --cov-report=xml --cov-report=html
 
       - run:
           name: Generate coverage XML report
-          command: coverage xml -o coverage.xml
+          command: |
+            source .venv/bin/activate && \
+            coverage xml -o coverage.xml
 
       - run:
           name: Generate coverage HTML report
-          command: coverage html -d coverage-html
+          command: |
+            source .venv/bin/activate && \
+            coverage html -d coverage-html
 
       - run:
           name: List test-results directory
@@ -62,8 +68,8 @@ jobs:
       - run:
           name: Create custom artifacts
           command: |
-            mkdir -p /tmp/artifacts
-            echo "This is a custom artifact file" > /tmp/artifacts/custom-artifact-1.txt
+            mkdir -p /tmp/artifacts && \
+            echo "This is a custom artifact file" > /tmp/artifacts/custom-artifact-1.txt && \
             echo "This is another custom artifact file" > /tmp/artifacts/custom-artifact-2.txt
 
       - store_artifacts:
@@ -87,12 +93,15 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            uv pip install -r requirements.txt
+            source .venv/bin/activate && \
+            uv pip install -r requirements.txt && \
             uv pip install black
 
       - run:
           name: Run Black (code formatting)
-          command: black src/ tests/
+          command: |
+            source .venv/bin/activate && \
+            black src/ tests/
 
   dependency_scanning:
     docker:
@@ -111,12 +120,15 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            uv pip install -r requirements.txt
+            source .venv/bin/activate && \
+            uv pip install -r requirements.txt && \
             uv pip install safety
 
       - run:
           name: Run Safety (dependency scanning)
-          command: safety check --full-report
+          command: |
+            source .venv/bin/activate && \
+            safety check --full-report
 
 workflows:
   version: 2
