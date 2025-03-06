@@ -10,13 +10,13 @@ jobs:
 
       - run:
           name: Install dependencies
-          command: pip install -r requirements.txt
+          command: uv install
 
       - run:
           name: Run tests
           command: |
             mkdir -p test-results
-            nose2 --plugin=nose2.plugins.junitxml --junit-xml-path=test-results/junit.xml --with-coverage
+            pytest --junitxml=test-results/junit.xml --cov=src --cov-report=xml --cov-report=html
 
       - run:
           name: Generate coverage XML report
@@ -68,7 +68,7 @@ jobs:
 
       - run:
           name: Install dependencies
-          command: pip install -r requirements.txt
+          command: uv install
 
       - run:
           name: Run Black (code formatting)
@@ -82,7 +82,7 @@ jobs:
 
       - run:
           name: Install dependencies
-          command: pip install -r requirements.txt
+          command: uv install
 
       - run:
           name: Install safety
