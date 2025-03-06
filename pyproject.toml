@@ -8,10 +8,11 @@ authors = [
     { name = "Your Name", email = "your.email@example.com" }
 ]
 dependencies = [
-    "calculator @ {root}/src/components/calculator",
-    "logger @ {root}/src/components/logger",
-    "notifier @ {root}/src/components/notifier",
+    "calculator @ file:///${PROJECT_ROOT}/src/components/calculator",
+    "logger @ file:///${PROJECT_ROOT}/src/components/logger",
+    "notifier @ file:///${PROJECT_ROOT}/src/components/notifier",
 ]
+license = "MIT"
 
 [build-system]
 requires = ["hatchling"]
@@ -53,4 +54,4 @@ ignore = []
 known-first-party = ["calculator", "logger", "notifier"]
 
 [project.urls]
-repository = "https://github.com/yourusername/python-template-repo"
+repository = "https://github.com/BhanuPrakashNani/python-template-repo"
