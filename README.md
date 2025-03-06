@@ -7,8 +7,8 @@ This repository serves as a **template** for Python projects. It includes a pre-
 ---
 
 ## Features
-- **Testing Framework**: [Nose2](https://nose2.readthedocs.io/) for unit, integration, and end-to-end testing.
-- This repository can also be used with [pytest](https://docs.pytest.org/), a popular testing framework. However, for extra credit, we have disabled `pytest` and are currently using `nose2` as an alternative.
+- **Testing Framework**: [pytest](https://docs.pytest.org/) for unit, integration, and end-to-end testing with coverage reporting.
+- **Test Coverage**: [pytest-cov](https://pytest-cov.readthedocs.io/) for measuring test coverage integrated with pytest.
 - **Dependency Management**: [UV](https://github.com/astral-sh/uv) for fast and efficient dependency management.
 - **Code Formatting**: [Ruff](https://beta.ruff.rs/docs/) for linting and formatting.
 - **Static Analysis**: [Mypy](https://mypy-lang.org/) and Ruff for type checking and static analysis.
@@ -56,22 +56,22 @@ This repository serves as a **template** for Python projects. It includes a pre-
 ### Running Tests
 1. Run unit tests:
    ```bash
-   nose2 tests/Unit
+   pytest tests/unit
    ```
 
 2. Run integration tests:
    ```bash
-   nose2 tests/Integration
+   pytest tests/Integration
    ```
 
 3. Run end-to-end tests:
    ```bash
-   nose2 tests/EndToEnd
+   pytest tests/EndToEnd
    ```
 
 4. Generate a coverage report:
    ```bash
-   nose2 --with-coverage
+   pytest --cov=src
    ```
 
 ---
@@ -150,7 +150,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ---
 
 ## Acknowledgments
-- [Nose2](https://nose2.readthedocs.io/) for testing.
+- [pytest](https://docs.pytest.org/) for testing.
 - [Ruff](https://beta.ruff.rs/docs/) for linting and formatting.
 - [CircleCI](https://circleci.com/) for CI/CD.
 

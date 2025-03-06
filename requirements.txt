@@ -1,10 +1,7 @@
-pytest
-pytest-cov
-ruff
-mypy
+ruff>=0.1.9
+mypy>=1.8.0
+pytest>=7.4.0
+pytest-cov>=4.1.0
+coverage>=7.4.0
+safety>=2.3.5
 uv
-nose2[coverage_plugin]
-coverage
-black
-flake8
-bandit

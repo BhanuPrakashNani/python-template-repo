@@ -9,14 +9,16 @@ jobs:
       - checkout
 
       - run:
-          name: Install dependencies
-          command: pip install -r requirements.txt
+          name: Install UV and dependencies
+          command: |
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            uv pip install -r requirements.txt
 
       - run:
           name: Run tests
           command: |
             mkdir -p test-results
-            nose2 --plugin=nose2.plugins.junitxml --junit-xml-path=test-results/junit.xml --with-coverage
+            pytest tests/ --junitxml=test-results/junit.xml --cov=src --cov-report=xml --cov-report=html
 
       - run:
           name: Generate coverage XML report
@@ -67,8 +69,10 @@ jobs:
       - checkout
 
       - run:
-          name: Install dependencies
-          command: pip install -r requirements.txt
+          name: Install UV and dependencies
+          command: |
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            uv pip install -r requirements.txt
 
       - run:
           name: Run Black (code formatting)
@@ -81,8 +85,10 @@ jobs:
       - checkout
 
       - run:
-          name: Install dependencies
-          command: pip install -r requirements.txt
+          name: Install UV and dependencies
+          command: |
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            uv pip install -r requirements.txt
 
       - run:
           name: Install safety
@@ -90,7 +96,7 @@ jobs:
 
       - run:
           name: Run Safety (dependency scanning)
-          command: safety check --full-report
+          command: safety scan --full-report
 
 workflows:
   version: 2
