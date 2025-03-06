@@ -9,6 +9,10 @@ jobs:
       - checkout
 
       - run:
+          name: Install UV
+          command: pip install uv
+
+      - run:
           name: Install dependencies
           command: uv install
 
@@ -67,6 +71,10 @@ jobs:
       - checkout
 
       - run:
+          name: Install UV
+          command: pip install uv
+
+      - run:
           name: Install dependencies
           command: uv install
 
@@ -79,6 +87,10 @@ jobs:
       - image: cimg/python:3.11
     steps:
       - checkout
+
+      - run:
+          name: Install UV
+          command: pip install uv
 
       - run:
           name: Install dependencies
