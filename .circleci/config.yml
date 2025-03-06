@@ -1,81 +1,101 @@
 version: 2.1
 
-orbs:
-  python: circleci/python@2.1
-
 jobs:
   test:
+    parallelism: 4
     docker:
       - image: cimg/python:3.11
     steps:
       - checkout
 
-      # Install UV
       - run:
-          name: Install UV
-          command: |
-            curl -LsSf https://astral.sh/uv/install.sh | sh
-            echo 'export PATH="/root/.cargo/bin:$PATH"' >> $BASH_ENV
-            source $BASH_ENV
+          name: Install dependencies
+          command: pip install -r requirements.txt
 
-      # Install dependencies
       - run:
-          name: Install Dependencies
+          name: Run tests
           command: |
-            uv pip install -e ".[test]"
+            mkdir -p test-results
+            nose2 --plugin=nose2.plugins.junitxml --junit-xml-path=test-results/junit.xml --with-coverage
 
-      # Run unit tests with coverage
       - run:
-          name: Run Unit Tests
-          command: |
-            mkdir test-results
-            pytest src/components/*/tests/ --junitxml=test-results/unit.xml --cov=src --cov-report=xml:coverage.xml
+          name: Generate coverage XML report
+          command: coverage xml -o coverage.xml
 
-      # Run integration tests
       - run:
-          name: Run Integration Tests
-          command: |
-            pytest tests/integration/ --junitxml=test-results/integration.xml
+          name: Generate coverage HTML report
+          command: coverage html -d coverage-html
 
-      # Run E2E tests
       - run:
-          name: Run E2E Tests
-          command: |
-            pytest tests/e2e/ --junitxml=test-results/e2e.xml
+          name: List test-results directory
+          command: ls -la test-results/
 
-      # Store test results
+      - run:
+          name: Change permissions
+          command: chmod -R 755 test-results/
+
       - store_test_results:
-          path: test-results
+          path: test-results/
 
-      # Store coverage results
+      - store_artifacts:
+          path: test-results/junit.xml
+          destination: test-results
+
       - store_artifacts:
           path: coverage.xml
+          destination: coverage-report
 
-      # Report test summary
+      - store_artifacts:
+          path: coverage-html/
+          destination: coverage-html
+
       - run:
-          name: Test Summary
-          when: always
+          name: Create custom artifacts
           command: |
-            echo "Test Results:"
-            if [ -f test-results/unit.xml ]; then
-              echo "Unit Tests:"
-              grep -A1 "testsuites" test-results/unit.xml | tail -n1
-            fi
-            if [ -f test-results/integration.xml ]; then
-              echo "Integration Tests:"
-              grep -A1 "testsuites" test-results/integration.xml | tail -n1
-            fi
-            if [ -f test-results/e2e.xml ]; then
-              echo "E2E Tests:"
-              grep -A1 "testsuites" test-results/e2e.xml | tail -n1
-            fi
-            if [ -f coverage.xml ]; then
-              echo "Coverage Report:"
-              python -c "import xml.etree.ElementTree as ET; tree = ET.parse('coverage.xml'); root = tree.getroot(); print(f'Coverage: {root.attrib[\"line-rate\"]}%')"
-            fi
+            mkdir -p /tmp/artifacts
+            echo "This is a custom artifact file" > /tmp/artifacts/custom-artifact-1.txt
+            echo "This is another custom artifact file" > /tmp/artifacts/custom-artifact-2.txt
+
+      - store_artifacts:
+          path: /tmp/artifacts
+          destination: custom-artifacts
+
+  code_quality:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
+
+      - run:
+          name: Install dependencies
+          command: pip install -r requirements.txt
+
+      - run:
+          name: Run Black (code formatting)
+          command: black src/ tests/
+
+  dependency_scanning:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
+
+      - run:
+          name: Install dependencies
+          command: pip install -r requirements.txt
+
+      - run:
+          name: Install safety
+          command: pip install safety
+
+      - run:
+          name: Run Safety (dependency scanning)
+          command: safety check --full-report
 
 workflows:
   version: 2
-  build-test:
+  test_and_scan:
     jobs:
       - test
+      - code_quality
+      - dependency_scanning

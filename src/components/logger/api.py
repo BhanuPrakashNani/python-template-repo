@@ -1,19 +1,5 @@
-from dataclasses import dataclass
-from typing import Protocol
+from .logger import Logger
 
-class LoggerAPI(Protocol):
-    def log(self, message: str) -> None:
-        """Log a message.
-
-        Args:
-            message: The message to log
-        """
-        ...
-
-@dataclass
-class Logger:
-    """Logger implementation that records operations."""
-    
-    def log(self, message: str) -> None:
-        """Log a message with a LOG prefix."""
-        print(f"LOG: {message}")
+def log(message : str) -> None:
+    logger = Logger()
+    logger.log(message)
