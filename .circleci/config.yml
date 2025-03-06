@@ -14,8 +14,11 @@ jobs:
           name: Create uv virtual environment
           command: uv venv
       - run:
-          name: Install dependencies
+          name: Install project dependencies
           command: uv pip install --requirements requirements.txt
+      - run:
+          name: Install pytest and coverage tools
+          command: uv pip install pytest pytest-cov coverage
       - run:
           name: Run tests
           command: |
@@ -66,7 +69,7 @@ jobs:
           name: Create uv virtual environment
           command: uv venv
       - run:
-          name: Install dependencies
+          name: Install project dependencies
           command: uv pip install --requirements requirements.txt
       - run:
           name: Run Black (code formatting)
@@ -84,7 +87,7 @@ jobs:
           name: Create uv virtual environment
           command: uv venv
       - run:
-          name: Install dependencies
+          name: Install project dependencies
           command: uv pip install --requirements requirements.txt
       - run:
           name: Install safety
