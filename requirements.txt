@@ -1,0 +1,10 @@
+pytest
+pytest-cov
+ruff
+mypy
+uv
+nose2[coverage_plugin]
+coverage
+black
+flake8
+bandit

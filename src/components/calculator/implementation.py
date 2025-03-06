@@ -1,7 +1,11 @@
-from typing import Protocol
+from .api import CalculatorAPI
 
-class CalculatorAPI(Protocol):
-    """Protocol defining the Calculator component's API."""
+class Calculator:
+    """Implementation of the Calculator component.
+    
+    This class provides basic arithmetic operations like addition,
+    subtraction, and multiplication.
+    """
     
     def add(self, a: int, b: int) -> int:
         """Add two integers.
@@ -13,8 +17,8 @@ class CalculatorAPI(Protocol):
         Returns:
             Sum of the two integers
         """
-        ...
-        
+        return a + b
+
     def subtract(self, a: int, b: int) -> int:
         """Subtract second integer from first.
         
@@ -25,8 +29,8 @@ class CalculatorAPI(Protocol):
         Returns:
             Difference between the two integers
         """
-        ...
-        
+        return a - b
+
     def multiply(self, a: int, b: int) -> int:
         """Multiply two integers.
         
@@ -37,4 +41,4 @@ class CalculatorAPI(Protocol):
         Returns:
             Product of the two integers
         """
-        ...
+        return a * b

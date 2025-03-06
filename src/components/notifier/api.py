@@ -1,19 +1,12 @@
-from dataclasses import dataclass
 from typing import Protocol
 
 class NotifierAPI(Protocol):
-    def notify(self, message: str) -> None:
-        """Send a notification.
-
-        Args:
-            message: The message to send
-        """
-        ...
-
-@dataclass
-class Notifier:
-    """Notifier implementation that sends alerts."""
+    """Protocol defining the Notifier component's API."""
     
     def notify(self, message: str) -> None:
-        """Send a notification with a NOTIFICATION prefix."""
-        print(f"NOTIFICATION: {message}")
+        """Send a notification with the given message.
+        
+        Args:
+            message: The message to include in the notification
+        """
+        ...

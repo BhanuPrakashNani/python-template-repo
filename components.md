@@ -1,130 +1,126 @@
-# Component Architecture
+# Components Documentation
 
-This document explains the component-based architecture used in this template.
+This document provides an overview of the components in the `src/components/` directory. Each component is designed to perform a specific function and is thoroughly tested with unit, integration, and end-to-end tests.
 
-## What is a Component?
+---
 
-A component is a self-contained module that:
-1. Has a well-defined API (Protocol)
-2. Implements specific functionality
-3. Can be tested independently
-4. Has its own dependencies
-5. Is packaged as a separate UV package
+## 1. **Calculator**
 
-## Component Structure
+### Description
+The `Calculator` component performs basic arithmetic operations such as addition, subtraction, and multiplication.
 
-Each component follows this structure:
-```
-component_name/
-├── __init__.py      # Exports the component's API
-├── api.py           # Contains Protocol definition and implementation
-├── tests/           # Co-located unit tests
-│   └── test_*.py
-└── pyproject.toml   # Component-specific UV package config
-```
+### Location
+- File: `src/components/calculator.py`
+- Class: `Calculator`
 
-### Key Files Explained
+### Methods
+- **`add(a: int, b: int) -> int`**  
+  Adds two integers and returns the result.  
+  Example: `calc.add(1, 2)` returns `3`.
 
-1. **api.py**:
-   - Defines the component's Protocol (interface)
-   - Contains the implementation
-   - Example:
-   ```python
-   from typing import Protocol
-   
-   class CalculatorAPI(Protocol):
-       def add(self, a: int, b: int) -> int:
-           """Add two numbers."""
-           ...
-   
-   class Calculator:
-       def add(self, a: int, b: int) -> int:
-           return a + b
-   ```
+- **`subtract(a: int, b: int) -> int`**  
+  Subtracts the second integer from the first and returns the result.  
+  Example: `calc.subtract(5, 3)` returns `2`.
 
-2. **__init__.py**:
-   - Exports the public API
-   - Example:
-   ```python
-   from .api import Calculator
-   __all__ = ["Calculator"]
-   ```
+- **`multiply(a: int, b: int) -> int`**  
+  Multiplies two integers and returns the result.  
+  Example: `calc.multiply(2, 3)` returns `6`.
 
-3. **pyproject.toml**:
-   - Defines component as UV package
-   - Specifies dependencies
-   - Configures testing and linting
-   - Example:
-   ```toml
-   [project]
-   name = "calculator"
-   version = "0.1.0"
-   dependencies = []
-   ```
+### Unit Tests
+- File: `tests/unit/test_calculator.py`
+- Tests:
+  - `test_addition`: Verifies the `add` method.
+  - `test_subtraction`: Verifies the `subtract` method.
+  - `test_multiplication`: Verifies the `multiply` method.
 
-4. **tests/**:
-   - Contains unit tests
-   - Co-located with component code
-   - Follows pytest conventions
+---
 
-## Integration Between Components
+## 2. **Logger**
 
-Components can be used together while maintaining independence:
+### Description
+The `Logger` component records operations performed by the `Calculator` and stores them in a log.
+
+### Location
+- File: `src/components/logger.py`
+- Class: `Logger`
+
+### Methods
+- **`log(message: str) -> None`**  
+  Logs a message.  
+  Example: `logger.log("Addition performed: 1 + 2 = 3")`.
+
+### Unit Tests
+- File: `tests/unit/test_logger.py`
+- Tests:
+  - `test_logger`: Verifies the `log` method.
+
+---
+
+## 3. **Notifier**
+
+### Description
+The `Notifier` component sends an alert when the result of a `Calculator` operation exceeds a given threshold.
+
+### Location
+- File: `src/components/notifier.py`
+- Class: `Notifier`
+
+### Methods
+- **`notify(message: str) -> None`**  
+  Sends a notification.  
+  Example: `notifier.notify("Threshold exceeded: Result is 10")`.
+
+### Unit Tests
+- File: `tests/unit/test_notifier.py`
+- Tests:
+  - `test_notifier`: Verifies the `notify` method.
+
+---
+
+## Integration Tests
+
+### Calculator + Logger
+- File: `tests/Integration/test_calculator_logger_integration.py`
+- Tests:
+  - Verifies that `Calculator` operations are logged by the `Logger`.
+
+### Logger + Notifier
+- File: `tests/Integration/test_logger_notifier_integration.py`
+- Tests:
+  - Verifies that the `Logger` triggers the `Notifier` when a threshold is exceeded.
+
+---
+
+## End-to-End Tests
+
+### Calculator → Logger → Notifier
+- File: `tests/EndToEnd/test_e2e.py`
+- Tests:
+  - Verifies the entire workflow:  
+    1. Perform a calculation using the `Calculator`.  
+    2. Log the operation using the `Logger`.  
+    3. Send a notification using the `Notifier` if the result exceeds a threshold.
+
+---
+
+## Usage Example
 
 ```python
-from calculator import Calculator
-from logger import Logger
+from src.components.calculator import Calculator
+from src.components.logger import Logger
+from src.components.notifier import Notifier
 
+# Initialize components
 calc = Calculator()
 logger = Logger()
+notifier = Notifier()
 
+# Perform a calculation
 result = calc.add(1, 2)
-logger.log(f"Result: {result}")
-```
 
-## Testing Levels
+# Log the operation
+logger.log(f"Addition performed: 1 + 2 = {result}")
 
-1. **Unit Tests** (in component/tests/):
-   - Test component in isolation
-   - Co-located with component code
-   - Run with: `pytest src/components/calculator/tests/`
-
-2. **Integration Tests** (in tests/integration/):
-   - Test component interactions
-   - Located at project root
-   - Run with: `pytest tests/integration/`
-
-3. **End-to-End Tests** (in tests/e2e/):
-   - Test complete workflows
-   - Located at project root
-   - Run with: `pytest tests/e2e/`
-
-## Adding New Components
-
-To add a new component:
-
-1. Create directory structure:
-   ```bash
-   mkdir -p src/components/new_component/{tests,__pycache__}
-   ```
-
-2. Create required files:
-   - api.py with Protocol and implementation
-   - __init__.py for exports
-   - pyproject.toml for UV package
-   - Unit tests in tests/
-
-3. Update root pyproject.toml to include component:
-   ```toml
-   dependencies = [
-       "new_component @ {root}/src/components/new_component"
-   ]
-   ```
-
-## Best Practices
-
-1. **API First**: Define Protocol before implementation
-2. **Single Responsibility**: Each component does one thing well
-3. **Independence**: Components should have minimal dependencies
-4. **Co-located Tests**: Keep unit tests with component code
-5. **Clear Boundaries**: Use Protocol to define component interface
+# Notify if the result exceeds a threshold
+if result > 2:
+    notifier.notify(f"Threshold exceeded: Result is {result}")

@@ -1,3 +1,3 @@
-from .api import Notifier
+from .implementation import Notifier
 
 __all__ = ["Notifier"]

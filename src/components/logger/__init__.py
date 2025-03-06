@@ -1,3 +1,3 @@
-from .api import Logger
+from .implementation import Logger
 
 __all__ = ["Logger"]
