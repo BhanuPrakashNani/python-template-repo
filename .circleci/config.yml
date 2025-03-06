@@ -34,7 +34,7 @@ jobs:
             ruff check . --fix
             git add .
             git commit -m "style: Format code and fix imports" || true
-            mypy src/components/*/src
+            mypy src/components/
       - run:
           name: Run Unit Tests
           command: |
