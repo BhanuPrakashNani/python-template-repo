@@ -14,7 +14,7 @@ jobs:
 
       - run:
           name: Install dependencies
-          command: uv install
+          command: uv pip install
 
       - run:
           name: Run tests
@@ -76,7 +76,7 @@ jobs:
 
       - run:
           name: Install dependencies
-          command: uv install
+          command: uv pip install
 
       - run:
           name: Run Black (code formatting)
@@ -94,7 +94,7 @@ jobs:
 
       - run:
           name: Install dependencies
-          command: uv install
+          command: uv pip install
 
       - run:
           name: Install safety
