@@ -12,7 +12,7 @@ jobs:
           command: pip install uv
       - run:
           name: Install dependencies
-          command: uv pip install
+          command: uv pip install --requirements requirements.txt
       - run:
           name: Run tests
           command: |
@@ -61,7 +61,7 @@ jobs:
           command: pip install uv
       - run:
           name: Install dependencies
-          command: uv pip install
+          command: uv pip install --requirements requirements.txt
       - run:
           name: Run Black (code formatting)
           command: black src/ tests/
@@ -76,7 +76,7 @@ jobs:
           command: pip install uv
       - run:
           name: Install dependencies
-          command: uv pip install
+          command: uv pip install --requirements requirements.txt
       - run:
           name: Install safety
           command: pip install safety
