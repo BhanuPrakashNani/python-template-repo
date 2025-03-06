@@ -7,59 +7,46 @@ jobs:
       - image: cimg/python:3.11
     steps:
       - checkout
-
       - run:
           name: Install UV
           command: pip install uv
-
       - run:
           name: Install dependencies
           command: uv pip install
-
       - run:
           name: Run tests
           command: |
             mkdir -p test-results
             pytest --junitxml=test-results/junit.xml --cov=src --cov-report=xml --cov-report=html
-
       - run:
           name: Generate coverage XML report
           command: coverage xml -o coverage.xml
-
       - run:
           name: Generate coverage HTML report
           command: coverage html -d coverage-html
-
       - run:
           name: List test-results directory
           command: ls -la test-results/
-
       - run:
-          name: Change permissions
+          name: Change permissions on test-results
           command: chmod -R 755 test-results/
-
       - store_test_results:
           path: test-results/
-
       - store_artifacts:
           path: test-results/junit.xml
           destination: test-results
-
       - store_artifacts:
           path: coverage.xml
           destination: coverage-report
-
       - store_artifacts:
           path: coverage-html/
           destination: coverage-html
-
       - run:
           name: Create custom artifacts
           command: |
             mkdir -p /tmp/artifacts
             echo "This is a custom artifact file" > /tmp/artifacts/custom-artifact-1.txt
             echo "This is another custom artifact file" > /tmp/artifacts/custom-artifact-2.txt
-
       - store_artifacts:
           path: /tmp/artifacts
           destination: custom-artifacts
@@ -69,15 +56,12 @@ jobs:
       - image: cimg/python:3.11
     steps:
       - checkout
-
       - run:
           name: Install UV
           command: pip install uv
-
       - run:
           name: Install dependencies
           command: uv pip install
-
       - run:
           name: Run Black (code formatting)
           command: black src/ tests/
@@ -87,19 +71,15 @@ jobs:
       - image: cimg/python:3.11
     steps:
       - checkout
-
       - run:
           name: Install UV
           command: pip install uv
-
       - run:
           name: Install dependencies
           command: uv pip install
-
       - run:
           name: Install safety
           command: pip install safety
-
       - run:
           name: Run Safety (dependency scanning)
           command: safety check --full-report
