@@ -1,8 +1,13 @@
-from src.components.calculator import Calculator
-from src.components.logger import Logger
+"""Integration test for Calculator and Logger components."""
+
+from pytest import CaptureFixture
+
+from calculator import Calculator
+from logger import Logger
 
 
-def test_calculator_logger_integration(capsys):
+def test_calculator_logger_integration(capsys: CaptureFixture[str]) -> None:
+    """Test that Calculator operations are correctly logged."""
     calc = Calculator()
     logger = Logger()
 

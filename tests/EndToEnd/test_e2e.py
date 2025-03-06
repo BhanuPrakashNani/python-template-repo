@@ -1,9 +1,13 @@
-from src.components.calculator import Calculator
-from src.components.logger import Logger
-from src.components.notifier import Notifier
+"""End-to-end tests for the complete workflow."""
 
+from pytest import CaptureFixture
 
-def test_e2e_workflow(capsys):
+from calculator import Calculator
+from logger import Logger
+from notifier import Notifier
+
+def test_e2e_workflow(capsys: CaptureFixture[str]) -> None:
+    """Test the complete workflow of Calculator, Logger, and Notifier."""
     calc = Calculator()
     logger = Logger()
     notifier = Notifier()

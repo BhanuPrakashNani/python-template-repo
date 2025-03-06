@@ -1,8 +1,12 @@
-from src.components.logger import Logger
-from src.components.notifier import Notifier
+"""Integration test for Logger and Notifier components."""
 
+from pytest import CaptureFixture
 
-def test_logger_notifier_integration(capsys):
+from logger import Logger
+from notifier import Notifier
+
+def test_logger_notifier_integration(capsys: CaptureFixture[str]) -> None:
+    """Test that Logger and Notifier work together correctly."""
     logger = Logger()
     notifier = Notifier()
 

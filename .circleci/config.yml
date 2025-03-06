@@ -21,9 +21,10 @@ jobs:
             uv venv
             . .venv/bin/activate
             uv pip install pytest pytest-cov ruff mypy
-            uv pip install -e src/components/calculator
-            uv pip install -e src/components/logger
-            uv pip install -e src/components/notifier
+            cd src/components/calculator && uv pip install -e . && cd ../../..
+            cd src/components/logger && uv pip install -e . && cd ../../..
+            cd src/components/notifier && uv pip install -e . && cd ../../..
+            uv pip install -e .
       - run:
           name: Run Linting and Formatting
           command: |
