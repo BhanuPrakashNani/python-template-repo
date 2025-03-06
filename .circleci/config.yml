@@ -13,10 +13,13 @@ jobs:
           name: Install UV
           command: |
             curl -LsSf https://astral.sh/uv/install.sh | sh
+            echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> $BASH_ENV
+            source $BASH_ENV
       - run:
           name: Setup Project
           command: |
             uv venv
+            . .venv/bin/activate
             uv pip install pytest pytest-cov ruff mypy
             uv pip install -e src/components/calculator
             uv pip install -e src/components/logger
@@ -24,23 +27,28 @@ jobs:
       - run:
           name: Run Linting
           command: |
+            . .venv/bin/activate
             ruff check .
             mypy src/components/*/src
       - run:
           name: Run Unit Tests
           command: |
+            . .venv/bin/activate
             pytest src/components/*/tests -v --junitxml=test-results/junit.xml
       - run:
           name: Run Integration Tests
           command: |
+            . .venv/bin/activate
             pytest tests/Integration -v
       - run:
           name: Run E2E Tests
           command: |
+            . .venv/bin/activate
             pytest tests/EndToEnd -v
       - run:
           name: Generate Coverage Report
           command: |
+            . .venv/bin/activate
             pytest --cov=src --cov-report=xml --cov-report=html
       - store_test_results:
           path: test-results
