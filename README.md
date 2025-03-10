@@ -109,8 +109,6 @@ python-template-repo/
 │   ├── SOURCES.txt
 │   ├── dependency_links.txt
 │   └── top_level.txt
-├── requirements.txt
-├── setup.py
 ├── src
 │   ├── __init__.py
 │   └── components
