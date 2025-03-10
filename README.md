@@ -79,33 +79,63 @@ For detailed documentation on the components (`Calculator`, `Logger`, and `Notif
 ## Repository Structure
 ```
 python-template-repo/
-├── .circleci/               # CircleCI configuration
+├── .circleci
 │   └── config.yml
-├── .github/                 # GitHub templates
-│   ├── ISSUE_TEMPLATE/
+├── .github
+│   ├── ISSUE_TEMPLATE
 │   │   ├── bug_report.md
 │   │   └── feature_request.md
 │   └── pull_request_template.md
-├── src/                     # Source code
-│   ├── components/          # Components directory
-│   │   ├── __init__.py
-│   │   ├── calculator.py    # Calculator component
-│   │   ├── logger.py        # Logger component
-│   │   └── notifier.py      # Notifier component
-│   └── __init__.py
-├── tests/                   # Tests
-│   ├── EndToEnd/           # End-to-end tests
-│   ├── Integration/        # Integration tests
-│   └── Unit/               # Unit tests
-├── .gitignore              # Files to ignore in Git
-├── .pre-commit-config.yaml # Pre-commit hooks
-├── .ruff.toml              # Ruff configuration
-├── mypy.ini                # Mypy configuration
-├── nose2.cfg               # Nose2 configuration
-├── README.md               # This file
-├── component.md            # Component documentation
-├── requirements.txt        # Project dependencies
-└── setup.py                # Package setup
+├── .gitignore
+├── .pre-commit-config.yaml
+├── .pytest_cache
+│   ├── .gitignore
+│   ├── CACHEDIR.TAG
+│   ├── README.md
+│   └── v
+│       └── cache
+│           ├── lastfailed
+│           ├── nodeids
+│           └── stepwise
+├── LICENSE
+├── README.md
+├── components.md
+├── example.py
+├── mypy.ini
+├── nose2.cfg
+├── pyproject.toml
+├── python_template_repo.egg-info
+│   ├── PKG-INFO
+│   ├── SOURCES.txt
+│   ├── dependency_links.txt
+│   └── top_level.txt
+├── requirements.txt
+├── setup.py
+├── src
+│   ├── __init__.py
+│   └── components
+│       ├── __init__.py
+│       ├── calculator
+│       │   ├── __init__.py
+│       │   └── pyproject.toml
+│       ├── logger
+│       │   ├── __init__.py
+│       │   └── pyproject.toml
+│       └── notifier
+│           ├── __init__.py
+│           └── pyproject.toml
+├── test-results
+│   └── junit.xml
+└── tests
+    ├── EndToEnd
+    │   ├── __init__.py
+    │   └── test_e2e.py
+    ├── Integration
+    │   ├── __init__.py
+    │   ├── test_calculator_logger_integration.py
+    │   └── test_logger_notifier_integration.py
+    └── unit
+        └── __init__.py
 ```
 
 ---
