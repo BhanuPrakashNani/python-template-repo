@@ -130,12 +130,11 @@ python-template-repo/
     ├── EndToEnd
     │   ├── __init__.py
     │   └── test_e2e.py
-    ├── Integration
-    │   ├── __init__.py
-    │   ├── test_calculator_logger_integration.py
-    │   └── test_logger_notifier_integration.py
-    └── unit
-        └── __init__.py
+    └── Integration
+        ├── __init__.py
+        ├── test_calculator_logger_integration.py
+        └── test_logger_notifier_integration.py
+
 ```
 
 ---
