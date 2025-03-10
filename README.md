@@ -38,7 +38,7 @@ This repository serves as a **template** for Python projects. It includes a pre-
 
 2. Install dependencies using UV:
    ```bash
-   uv install
+   uv pip install -e ".[dev]"
    ```
 
 ---
