@@ -48,7 +48,7 @@ jobs:
           command: |
             mkdir -p test-results
             echo "Running tests with nose2..."
-            COVERAGE_FILE=.coverage nose2 -v --with-coverage --junit-xml-path=test-results/junit.xml
+            PYTHONPATH=${PYTHONPATH:+$PYTHONPATH:}$PWD COVERAGE_FILE=.coverage nose2 -v --with-coverage --start-dir=src --junit-xml-path=test-results/junit.xml
             echo "\nChecking test results directory:"
             ls -la test-results/ || echo "Test results directory is empty"
             echo "\nChecking for coverage data:"
