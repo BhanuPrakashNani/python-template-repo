@@ -1,0 +1,18 @@
+[run]
+source = src
+omit = */tests/*
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    pass
+    raise ImportError
+
+[html]
+directory = test-results/coverage-html
+
+[xml]
+output = test-results/coverage.xml 
