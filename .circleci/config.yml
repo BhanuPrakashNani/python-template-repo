@@ -36,6 +36,16 @@ jobs:
             nose2 -h | head -n 1
             echo "Nose2 configuration:"
             cat nose2.cfg
+            
+      - run:
+          name: Debug test discovery
+          command: |
+            echo "Test directories structure:"
+            find src tests -type d | sort
+            echo "\nTest files:"
+            find src tests -name "test_*.py" | sort
+            echo "\nTest discovery dry run:"
+            nose2 --collect-only --verbose
 
       - run:
           name: Run tests
@@ -45,7 +55,8 @@ jobs:
             # pytest --junitxml=test-results/junit.xml --cov=src --cov-report=xml --cov-report=html
             
             # Using nose2 as the primary testing framework as specified in the README
-            nose2 --verbose --with-coverage
+            # Explicitly enable the junit-xml plugin to ensure test results are captured
+            nose2 --verbose --with-coverage --plugin=nose2.plugins.junitxml
 
       - run:
           name: Generate coverage XML report
