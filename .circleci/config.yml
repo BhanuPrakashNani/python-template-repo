@@ -26,13 +26,18 @@ jobs:
           name: Install dependencies and testing tools
           command: |
             uv pip install -e ".[dev]"
+            uv pip install nose2[coverage_plugin]
             uv pip install pytest pytest-cov pytest-xdist
 
       - run:
           name: Run tests
           command: |
             mkdir -p test-results
-            pytest --junitxml=test-results/junit.xml --cov=src --cov-report=xml --cov-report=html
+            # Original pytest command (commented out but available as an alternative)
+            # pytest --junitxml=test-results/junit.xml --cov=src --cov-report=xml --cov-report=html
+            
+            # Using nose2 as the primary testing framework as specified in the README
+            nose2 --with-coverage
 
       - run:
           name: Generate coverage XML report
