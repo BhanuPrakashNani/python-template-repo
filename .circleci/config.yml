@@ -32,7 +32,8 @@ jobs:
       - run:
           name: Verify nose2 installation
           command: |
-            nose2 --version
+            # Use -h to verify nose2 is installed (instead of --version which isn't supported)
+            nose2 -h | head -n 1
             echo "Nose2 configuration:"
             cat nose2.cfg
 
@@ -44,7 +45,7 @@ jobs:
             # pytest --junitxml=test-results/junit.xml --cov=src --cov-report=xml --cov-report=html
             
             # Using nose2 as the primary testing framework as specified in the README
-            nose2 --with-coverage
+            nose2 --verbose --with-coverage
 
       - run:
           name: Generate coverage XML report
