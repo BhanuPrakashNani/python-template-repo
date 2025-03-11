@@ -67,6 +67,7 @@ jobs:
               mkdir -p test-results/coverage-html
               echo "<html><body><h1>No coverage data collected</h1></body></html>" > test-results/coverage-html/index.html
               echo "<?xml version='1.0' encoding='utf-8'?><coverage></coverage>" > test-results/coverage.xml
+            fi
 
       - store_test_results:
           path: test-results/
