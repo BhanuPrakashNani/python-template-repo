@@ -1,16 +1,17 @@
-[projects]
+[project]
 dependencies = [
-    "pytest"
-    "pytest-cov"
-    "ruff"
-    "mypy"
-    "uv"
-    "nose2[coverage_plugin]"
-    "coverage"
-    "black"
-    "flake8"
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "mypy",
+    "uv",
+    "nose2[coverage_plugin]",
+    "coverage",
+    "black",
+    "flake8",
     "bandit"
 ]
+
 
 [tool.ruff]
 line-length = 88
