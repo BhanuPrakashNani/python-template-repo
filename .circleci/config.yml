@@ -28,15 +28,11 @@ jobs:
             uv pip install -e ".[dev]"
             uv pip install nose2[coverage_plugin]
             uv pip install pytest pytest-cov pytest-xdist
-            
+
       - run:
           name: Verify nose2 installation
-          command: |
-            # Use -h to verify nose2 is installed (instead of --version which isn't supported)
-            nose2 -h | head -n 1
-            echo "Nose2 configuration:"
-            cat nose2.cfg
-            
+          command: nose2 -h | head -1
+
       - run:
           name: Debug test discovery
           command: |
@@ -44,90 +40,30 @@ jobs:
             find src tests -type d | sort
             echo "\nTest files:"
             find src tests -name "test_*.py" | sort
-            echo "\nListing available tests (dry run):"
-            # Use -v (verbose) with --plugin-list to see what plugins are active
-            nose2 -v --plugin-list 
-            # Try to list tests without running them
-            nose2 -v --no-user-config --fail-fast
+            echo "\nNose2 Plugins (if config exists):"
+            test -f nose2.cfg && cat nose2.cfg || echo "No nose2.cfg found"
 
       - run:
           name: Run tests
           command: |
             mkdir -p test-results
-            # Original pytest command (commented out but available as an alternative)
-            # pytest --junitxml=test-results/junit.xml --cov=src --cov-report=xml --cov-report=html
-            
-            # Using nose2 as the primary testing framework as specified in the README
-            # Run with junit-xml plugin to generate test reports
-            echo "Running nose2 with automatic test discovery:"
-            nose2 -v --plugin=nose2.plugins.junitxml --plugin=nose2.plugins.coverage
-            
-            # If automatic discovery doesn't work, try explicitly running tests
-            echo "\nRunning explicit tests to ensure they're executed:"
-            nose2 -v src.components.calculator.tests.test_calculator
-            nose2 -v tests.Integration.test_calculator_logger_integration
-            nose2 -v tests.EndToEnd.test_e2e
-            
-            # Check that the junit.xml file was created
-            echo "Checking for junit.xml file:"
-            ls -la test-results/ || echo "test-results directory is empty"
+            echo "Running tests with nose2..."
+            nose2 -v --junit-xml-path=test-results/junit.xml
+            echo "\nChecking test results directory:"
+            ls -la test-results/ || echo "Test results directory is empty"
 
       - run:
-          name: Generate coverage XML report
-          command: coverage xml -o coverage.xml
-
-      - run:
-          name: Generate coverage HTML report
-          command: coverage html -d coverage-html
-
-      - run:
-          name: List test-results directory
-          command: ls -la test-results/
-
-      - run:
-          name: Validate nose2 test results
+          name: Generate coverage reports
           command: |
-            echo "Checking nose2 test results file..."
-            if [ -f test-results/junit.xml ]; then
-              echo "✅ nose2 test results file exists"
-              echo "File contents preview:"
-              head -20 test-results/junit.xml
-              grep -q "testsuite name=\"nose2-junit\"" test-results/junit.xml && echo "✅ File contains nose2 test results" || echo "⚠️ File doesn't contain expected nose2 content"
-            else
-              echo "⚠️ nose2 test results file is missing"
-              echo "This might be because no tests were found or executed"
-              echo "Check the test discovery output above for more information"
-            fi
-
-      - run:
-          name: Change permissions on test-results
-          command: chmod -R 755 test-results/
+            coverage xml -o test-results/coverage.xml
+            coverage html -d test-results/coverage-html
 
       - store_test_results:
           path: test-results/
 
       - store_artifacts:
-          path: test-results/junit.xml
+          path: test-results/
           destination: test-results
-
-      - store_artifacts:
-          path: coverage.xml
-          destination: coverage-report
-
-      - store_artifacts:
-          path: coverage-html/
-          destination: coverage-html
-
-      - run:
-          name: Create custom artifacts
-          command: |
-            mkdir -p /tmp/artifacts
-            echo "This is a custom artifact file" > /tmp/artifacts/custom-artifact-1.txt
-            echo "This is another custom artifact file" > /tmp/artifacts/custom-artifact-2.txt
-
-      - store_artifacts:
-          path: /tmp/artifacts
-          destination: custom-artifacts
 
   code_quality:
     docker:
@@ -187,7 +123,12 @@ jobs:
 
       - run:
           name: Run Safety (dependency scanning)
-          command: safety check --full-report
+          command: |
+            if [ -f requirements.txt ]; then
+              safety check --file=requirements.txt --full-report
+            else
+              safety check --full-report
+            fi
 
 workflows:
   version: 2
