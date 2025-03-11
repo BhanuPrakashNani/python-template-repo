@@ -28,6 +28,13 @@ jobs:
             uv pip install -e ".[dev]"
             uv pip install nose2[coverage_plugin]
             uv pip install pytest pytest-cov pytest-xdist
+            
+      - run:
+          name: Verify nose2 installation
+          command: |
+            nose2 --version
+            echo "Nose2 configuration:"
+            cat nose2.cfg
 
       - run:
           name: Run tests
@@ -50,6 +57,18 @@ jobs:
       - run:
           name: List test-results directory
           command: ls -la test-results/
+
+      - run:
+          name: Validate nose2 test results
+          command: |
+            echo "Checking nose2 test results file..."
+            if [ -f test-results/junit.xml ]; then
+              echo "✅ nose2 test results file exists"
+              grep -q "testsuite name=\"nose2-junit\"" test-results/junit.xml && echo "✅ File contains nose2 test results"
+            else
+              echo "❌ nose2 test results file is missing"
+              exit 1
+            fi
 
       - run:
           name: Change permissions on test-results
