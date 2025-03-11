@@ -9,14 +9,30 @@ jobs:
       - checkout
 
       - run:
-          name: Install dependencies
-          command: pip install -r requirements.txt
+          name: Install UV
+          command: pip install uv
+
+      - run:
+          name: Create uv virtual environment
+          command: uv venv
+
+      - run:
+          name: Set environment variables
+          command: |
+            echo "export PYTHONPATH=$(pwd)" >> $BASH_ENV
+            echo "source .venv/bin/activate" >> $BASH_ENV
+
+      - run:
+          name: Install dependencies and testing tools
+          command: |
+            uv pip install -r requirements.txt
+            uv pip install pytest pytest-cov pytest-xdist
 
       - run:
           name: Run tests
           command: |
             mkdir -p test-results
-            nose2 --plugin=nose2.plugins.junitxml --junit-xml-path=test-results/junit.xml --with-coverage
+            pytest --junitxml=test-results/junit.xml --cov=src --cov-report=xml --cov-report=html
 
       - run:
           name: Generate coverage XML report
@@ -31,7 +47,7 @@ jobs:
           command: ls -la test-results/
 
       - run:
-          name: Change permissions
+          name: Change permissions on test-results
           command: chmod -R 755 test-results/
 
       - store_test_results:
@@ -67,8 +83,24 @@ jobs:
       - checkout
 
       - run:
-          name: Install dependencies
-          command: pip install -r requirements.txt
+          name: Install UV
+          command: pip install uv
+
+      - run:
+          name: Create uv virtual environment
+          command: uv venv
+
+      - run:
+          name: Set environment variables
+          command: |
+            echo "export PYTHONPATH=$(pwd)" >> $BASH_ENV
+            echo "source .venv/bin/activate" >> $BASH_ENV
+
+      - run:
+          name: Install dependencies and Black
+          command: |
+            uv pip install -r requirements.txt
+            uv pip install black
 
       - run:
           name: Run Black (code formatting)
@@ -81,12 +113,24 @@ jobs:
       - checkout
 
       - run:
-          name: Install dependencies
-          command: pip install -r requirements.txt
+          name: Install UV
+          command: pip install uv
 
       - run:
-          name: Install safety
-          command: pip install safety
+          name: Create uv virtual environment
+          command: uv venv
+
+      - run:
+          name: Set environment variables
+          command: |
+            echo "export PYTHONPATH=$(pwd)" >> $BASH_ENV
+            echo "source .venv/bin/activate" >> $BASH_ENV
+
+      - run:
+          name: Install dependencies and Safety
+          command: |
+            uv pip install -r requirements.txt
+            uv pip install safety
 
       - run:
           name: Run Safety (dependency scanning)
