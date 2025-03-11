@@ -25,7 +25,7 @@ jobs:
       - run:
           name: Install dependencies and testing tools
           command: |
-            uv pip install -r requirements.txt
+            uv pip install
             uv pip install pytest pytest-cov pytest-xdist
 
       - run:
@@ -99,7 +99,7 @@ jobs:
       - run:
           name: Install dependencies and Black
           command: |
-            uv pip install -r requirements.txt
+            uv pip install
             uv pip install black
 
       - run:
@@ -129,7 +129,7 @@ jobs:
       - run:
           name: Install dependencies and Safety
           command: |
-            uv pip install -r requirements.txt
+            uv pip install
             uv pip install safety
 
       - run:
