@@ -69,9 +69,11 @@ jobs:
               echo "<?xml version='1.0' encoding='utf-8'?><coverage></coverage>" > test-results/coverage.xml
             fi
 
+      # Store test results (JUnit XML only)
       - store_test_results:
-          path: test-results/
+          path: test-results/junit.xml
 
+      # Store all test-related artifacts
       - store_artifacts:
           path: test-results/
           destination: test-results
