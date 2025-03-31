@@ -84,6 +84,9 @@ jobs:
       - store_artifacts:
           path: test-results/
           destination: test-results
+      
+      - run: uv run pytest tests/Unit/ai_conversation/
+      - run: uv run pytest tests/Integration/
 
   code_quality:
     docker:
