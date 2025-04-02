@@ -1,0 +1,40 @@
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = ["E", "F", "W", "C90"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests",
+    "src/components/calculator/tests",
+    "src/components/logger/tests",
+    "src/components/notifier/tests"
+]
+
+[project]
+name = "python-template-repo"
+version = "0.1.0"
+description = "Python template repository"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "mypy",
+    "uv",
+    "nose2[coverage_plugin]",
+    "coverage",
+    "black",
+    "flake8",
+    "bandit",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

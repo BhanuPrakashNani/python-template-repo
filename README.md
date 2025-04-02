@@ -10,6 +10,7 @@ This repository serves as a **template** for Python projects. It includes a pre-
 - **Testing Framework**: [Nose2](https://nose2.readthedocs.io/) for unit, integration, and end-to-end testing.
 - This repository can also be used with [pytest](https://docs.pytest.org/), a popular testing framework. However, for extra credit, we have disabled `pytest` and are currently using `nose2` as an alternative.
 - **Dependency Management**: [UV](https://github.com/astral-sh/uv) for fast and efficient dependency management.
+- **Testing Framework**: [pytest](https://docs.pytest.org/) for unit, integration, and end-to-end testing.
 - **Code Formatting**: [Ruff](https://beta.ruff.rs/docs/) for linting and formatting.
 - **Static Analysis**: [Mypy](https://mypy-lang.org/) and Ruff for type checking and static analysis.
 - **Code Coverage**: [Coverage.py](https://coverage.readthedocs.io/) for measuring test coverage.
@@ -35,20 +36,9 @@ This repository serves as a **template** for Python projects. It includes a pre-
    cd python-template-repo
    ```
 
-2. Create a virtual environment:
+2. Install dependencies using UV:
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. Install the `src` package in editable mode:
-   ```bash
-   pip install -e .
+   uv pip install -e ".[dev]"
    ```
 
 ---
@@ -56,7 +46,7 @@ This repository serves as a **template** for Python projects. It includes a pre-
 ### Running Tests
 1. Run unit tests:
    ```bash
-   nose2 tests/Unit
+   pytest src/components/calculator/tests/test_calculator.py
    ```
 
 2. Run integration tests:
@@ -76,13 +66,8 @@ This repository serves as a **template** for Python projects. It includes a pre-
 
 ---
 
-### Continuous Integration (CI)
-This repository is configured with CircleCI for continuous integration. The CI pipeline:
-- Runs tests in parallel.
-- Checks code quality (formatting, linting, security).
-- Scans dependencies for vulnerabilities.
-- Generates a test coverage report.
-- Stores test results and artifacts for easy access.
+### Continuous Integration (CI) Status
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/BhanuPrakashNani/python-template-repo/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/BhanuPrakashNani/python-template-repo/tree/main)
 
 ---
 
@@ -94,33 +79,60 @@ For detailed documentation on the components (`Calculator`, `Logger`, and `Notif
 ## Repository Structure
 ```
 python-template-repo/
-├── .circleci/               # CircleCI configuration
+├── .circleci
 │   └── config.yml
-├── .github/                 # GitHub templates
-│   ├── ISSUE_TEMPLATE/
+├── .github
+│   ├── ISSUE_TEMPLATE
 │   │   ├── bug_report.md
 │   │   └── feature_request.md
 │   └── pull_request_template.md
-├── src/                     # Source code
-│   ├── components/          # Components directory
-│   │   ├── __init__.py
-│   │   ├── calculator.py    # Calculator component
-│   │   ├── logger.py        # Logger component
-│   │   └── notifier.py      # Notifier component
-│   └── __init__.py
-├── tests/                   # Tests
-│   ├── EndToEnd/           # End-to-end tests
-│   ├── Integration/        # Integration tests
-│   └── Unit/               # Unit tests
-├── .gitignore              # Files to ignore in Git
-├── .pre-commit-config.yaml # Pre-commit hooks
-├── .ruff.toml              # Ruff configuration
-├── mypy.ini                # Mypy configuration
-├── nose2.cfg               # Nose2 configuration
-├── README.md               # This file
-├── component.md            # Component documentation
-├── requirements.txt        # Project dependencies
-└── setup.py                # Package setup
+├── .gitignore
+├── .pre-commit-config.yaml
+├── .pytest_cache
+│   ├── .gitignore
+│   ├── CACHEDIR.TAG
+│   ├── README.md
+│   └── v
+│       └── cache
+│           ├── lastfailed
+│           ├── nodeids
+│           └── stepwise
+├── LICENSE
+├── README.md
+├── components.md
+├── example.py
+├── mypy.ini
+├── nose2.cfg
+├── pyproject.toml
+├── python_template_repo.egg-info
+│   ├── PKG-INFO
+│   ├── SOURCES.txt
+│   ├── dependency_links.txt
+│   └── top_level.txt
+├── src
+│   ├── __init__.py
+│   └── components
+│       ├── __init__.py
+│       ├── calculator
+│       │   ├── __init__.py
+│       │   └── pyproject.toml
+│       ├── logger
+│       │   ├── __init__.py
+│       │   └── pyproject.toml
+│       └── notifier
+│           ├── __init__.py
+│           └── pyproject.toml
+├── test-results
+│   └── junit.xml
+└── tests
+    ├── EndToEnd
+    │   ├── __init__.py
+    │   └── test_e2e.py
+    └── Integration
+        ├── __init__.py
+        ├── test_calculator_logger_integration.py
+        └── test_logger_notifier_integration.py
+
 ```
 
 ---

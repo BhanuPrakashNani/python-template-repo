@@ -1,6 +1,29 @@
 # Components Documentation
 
-This document provides an overview of the components in the `src/components/` directory. Each component is designed to perform a specific function and is thoroughly tested with unit, integration, and end-to-end tests.
+This document provides an overview of the components in the `src/components/` directory. Each component is designed to perform a specific function and is thoroughly tested with unit, integration, and end-to-end tests. Each component is a separate UV package with its own dependencies and configuration.
+
+## Directory Structure
+```
+src/components/
+├── calculator/
+│   ├── pyproject.toml
+│   ├── __init__.py
+│   ├── api.py (if needed)
+│   └── tests/
+│       └── test_calculator.py
+├── logger/
+│   ├── pyproject.toml
+│   ├── __init__.py
+│   ├── api.py (if needed)
+│   └── tests/
+│       └── test_logger.py
+├── notifier/
+│   ├── pyproject.toml
+│   ├── __init__.py
+│   ├── api.py (if needed)
+│   └── tests/
+│       └── test_notifier.py
+```
 
 ---
 
