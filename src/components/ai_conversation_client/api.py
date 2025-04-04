@@ -132,3 +132,26 @@ class AIConversationClient:
                 - cost_estimate: Estimated cost
         """
         raise NotImplementedError()
+
+    def summarize_conversation(self, session_id: str) -> str:
+        """Generate summary of the entire conversation.
+
+        Args:
+            session_id: Session identifier for conversation to summarize.
+
+        Returns:
+            Summary of the conversation as a string.
+        """
+        raise NotImplementedError()
+
+    def export_chat_history(self, session_id: str, format: str = "json") -> str:
+        """Export chat history to a specified format.
+
+        Args:
+            session_id: Session identifier for the conversation.
+            format: Format to export the chat history (e.g., 'json', 'txt').
+
+        Returns:
+            Path to the exported file or string representation of the chat history.
+        """
+        raise NotImplementedError()

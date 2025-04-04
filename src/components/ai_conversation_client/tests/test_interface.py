@@ -7,6 +7,7 @@ from datetime import datetime
 from unittest.mock import Mock
 
 import pytest
+
 from src.components.ai_conversation_client.api import AIConversationClient
 
 
@@ -68,3 +69,23 @@ class TestAIConversationClient:
         assert isinstance(metrics, dict)
         assert "token_count" in metrics
         assert isinstance(metrics["token_count"], int)
+
+    def test_summarize_conversation_contract(self, mock_client: Mock) -> None:
+        """Verify summarize_conversation() returns a valid summary."""
+        summary_text = "This conversation covered project scope and timelines."
+        mock_client.summarize_conversation.return_value = summary_text
+
+        result = mock_client.summarize_conversation("sess1")
+        assert isinstance(result, str)
+        assert len(result) > 0
+        mock_client.summarize_conversation.assert_called_once_with("sess1")
+
+    def text_export_chat_history_contract(self, mock_client: Mock) -> None:
+        """Verify export_chat_history() returns a valid file path."""
+        mock_file_path = "/exports/sess1_history.json"
+        mock_client.export_chat_history.return_value = mock_file_path
+
+        result = mock_client.export_chat_history("sess1", format="json")
+        assert isinstance(result, str)
+        assert result.endswith(".json")
+        mock_client.export_chat_history.assert_called_once_with("sess1", format="json")
