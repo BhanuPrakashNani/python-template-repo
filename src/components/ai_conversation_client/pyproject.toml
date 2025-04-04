@@ -1,7 +1,50 @@
 [project]
 name = "ai_conversation_client"
 version = "0.1.0"
+description = "AI Conversation Client Component"
+requires-python = ">=3.11"
 dependencies = [
     "openai>=1.0.0",
-    "pydantic>=2.0.0"
+    "pydantic>=2.0.0",
+    "httpx>=0.25.0",
+    "python-dotenv>=1.0.0"
 ]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.4.0",
+    "pytest-mock>=3.10.0",
+    "pytest-asyncio>=0.23.0"
+]
+dev = [
+    "black>=23.9.0",
+    "ruff>=0.0.280",
+    "mypy>=1.5.0"
+]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+show_error_codes = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+ignore_missing_imports = true
+disallow_untyped_defs = false
+
+[tool.ruff.lint]
+select = ["F", "E", "W", "I", "UP", "ANN", "D"]
+ignore = ["D107", "ANN101"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+ignore-decorators = ["pytest.fixture"]
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
