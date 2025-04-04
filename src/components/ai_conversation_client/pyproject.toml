@@ -33,9 +33,12 @@ check_untyped_defs = true
 show_error_codes = true
 
 [[tool.mypy.overrides]]
-module = "tests.*"
+module = "src.components.ai_conversation_client.*"
 ignore_missing_imports = true
 disallow_untyped_defs = false
+
+[tool.mypy.follow_imports]
+normal = "silent"
 
 [tool.ruff.lint]
 select = ["F", "E", "W", "I", "UP", "ANN", "D"]

@@ -7,7 +7,7 @@ from datetime import datetime
 from unittest.mock import Mock
 
 import pytest
-from components.ai_conversation_client.api import AIConversationClient
+from src.components.ai_conversation_client.api import AIConversationClient
 
 
 class TestAIConversationClient:
