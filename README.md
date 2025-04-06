@@ -1,172 +1,123 @@
-# Python Template Repository
 
-This repository serves as a **template** for Python projects. It includes a pre-configured setup for build management, unit testing, continuous integration, static analysis, code style adherence, and component specification. The repository is designed to be fully functional and follows best practices for software development.
+# Python AI Conversation Framework
 
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/BhanuPrakashNani/python-template-repo/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/BhanuPrakashNani/python-template-repo/tree/main)
 
----
+A template for AI conversation services with built-in quality enforcement and CI/CD pipeline.
 
 ## Features
-- **Testing Framework**: [Nose2](https://nose2.readthedocs.io/) for unit, integration, and end-to-end testing.
-- This repository can also be used with [pytest](https://docs.pytest.org/), a popular testing framework. However, for extra credit, we have disabled `pytest` and are currently using `nose2` as an alternative.
-- **Dependency Management**: [UV](https://github.com/astral-sh/uv) for fast and efficient dependency management.
-- **Testing Framework**: [pytest](https://docs.pytest.org/) for unit, integration, and end-to-end testing.
-- **Code Formatting**: [Ruff](https://beta.ruff.rs/docs/) for linting and formatting.
-- **Static Analysis**: [Mypy](https://mypy-lang.org/) and Ruff for type checking and static analysis.
-- **Code Coverage**: [Coverage.py](https://coverage.readthedocs.io/) for measuring test coverage.
-- **CI/CD**: [CircleCI](https://circleci.com/) for continuous integration and deployment.
-- **Pre-configured Templates**: Issue and pull request templates for standardized contributions.
-- **Components**: Includes three components (`Calculator`, `Logger`, and `Notifier`) with unit, integration, and end-to-end tests.
 
----
+### Core Components
+- **AI Conversation Interface**: Standardized client interface for multiple AI providers
+- **Testing Framework**: [pytest](https://docs.pytest.org/) with 100% coverage enforcement
+- **Dependency Management**: [UV](https://github.com/astral-sh/uv) for fast installations
+- **Code Quality**: 
+  - [Ruff](https://beta.ruff.rs/docs/) linting/formatting
+  - [Mypy](https://mypy-lang.org/) static type checking
+- **CI/CD**: [CircleCI](https://circleci.com/) with parallel test execution
+- **Pre-configured Templates**: Standardized issue and PR templates
+
+### AI Conversation Client Interface
+```python
+from components.ai_conversation_client import AIConversationClient
+
+class MyAIClient(AIConversationClient):
+    # Implements 11 required methods:
+    # - send_message() 
+    # - get_chat_history()
+    # - manage_sessions()
+    # - model_operations()
+    # - file_attachments()
+    # - usage_analytics()
+```
+
+**Key Capabilities**:
+- Multi-model support
+- Session persistence
+- File attachments
+- Usage metrics
+- Conversation summarization
+
+## Project Scope
+
+### In Scope (MVP)
+✅ **Core Interface**  
+- Strictly typed abstract base class
+- Complete test coverage
+- Documentation generation
+
+✅ **Quality Enforcement**  
+- Static type checking
+- Linting/formatting
+- 100% test coverage requirement
+
+✅ **CI Pipeline**  
+- Parallel test execution
+- Automated reporting
+- Dependency scanning
+
+✅ **Documentation**  
+- Interface specification
+- Usage examples
+- Contribution guidelines
+
+### Out of Scope
+❌ **Concrete Implementations**  
+- Provider-specific clients (OpenAI, Anthropic, etc.)
+- Authentication handlers
+- Rate limiting
+
+❌ **Advanced Features**  
+- Streaming responses
+- Fine-grained permissions
+- Multi-modal attachments
+
+❌ **Deployment**  
+- Containerization
+- Cloud deployment scripts
+- Scaling configuration
 
 ## Getting Started
 
 ### Prerequisites
-- Python 3.11 or higher.
-- [Git](https://git-scm.com/) for version control.
-- A [CircleCI](https://circleci.com/) account for CI/CD (optional).
-
----
+- Python 3.11+
+- [UV](https://github.com/astral-sh/uv) (`pip install uv`)
 
 ### Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/<your-username>/python-template-repo.git
-   cd python-template-repo
-   ```
-
-2. Install dependencies using UV:
-   ```bash
-   uv pip install -e ".[dev]"
-   ```
-
----
+```bash
+git clone https://github.com/BhanuPrakashNani/python-template-repo.git
+cd python-template-repo
+uv pip install -e ".[dev]"
+```
 
 ### Running Tests
-1. Run unit tests:
-   ```bash
-   pytest src/components/calculator/tests/test_calculator.py
-   ```
+```bash
+# Unit tests
+pytest src/components/ai_conversation_client/tests/
 
-2. Run integration tests:
-   ```bash
-   nose2 tests/Integration
-   ```
-
-3. Run end-to-end tests:
-   ```bash
-   nose2 tests/EndToEnd
-   ```
-
-4. Generate a coverage report:
-   ```bash
-   nose2 --with-coverage
-   ```
-
----
-
-### Continuous Integration (CI) Status
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/BhanuPrakashNani/python-template-repo/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/BhanuPrakashNani/python-template-repo/tree/main)
-
----
-
-## Components
-For detailed documentation on the components (`Calculator`, `Logger`, and `Notifier`), see [component.md](component.md).
-
----
+# With coverage
+pytest --cov=src --cov-report=html
+```
 
 ## Repository Structure
 ```
 python-template-repo/
-├── .circleci
-│   └── config.yml
-├── .github
-│   ├── ISSUE_TEMPLATE
-│   │   ├── bug_report.md
-│   │   └── feature_request.md
-│   └── pull_request_template.md
-├── .gitignore
-├── .pre-commit-config.yaml
-├── .pytest_cache
-│   ├── .gitignore
-│   ├── CACHEDIR.TAG
-│   ├── README.md
-│   └── v
-│       └── cache
-│           ├── lastfailed
-│           ├── nodeids
-│           └── stepwise
-├── LICENSE
-├── README.md
-├── components.md
-├── example.py
-├── mypy.ini
-├── nose2.cfg
-├── pyproject.toml
-├── python_template_repo.egg-info
-│   ├── PKG-INFO
-│   ├── SOURCES.txt
-│   ├── dependency_links.txt
-│   └── top_level.txt
-├── src
-│   ├── __init__.py
-│   └── components
-│       ├── __init__.py
-│       ├── calculator
-│       │   ├── __init__.py
-│       │   └── pyproject.toml
-│       ├── logger
-│       │   ├── __init__.py
-│       │   └── pyproject.toml
-│       └── notifier
-│           ├── __init__.py
-│           └── pyproject.toml
-├── test-results
-│   └── junit.xml
-└── tests
-    ├── EndToEnd
-    │   ├── __init__.py
-    │   └── test_e2e.py
-    └── Integration
-        ├── __init__.py
-        ├── test_calculator_logger_integration.py
-        └── test_logger_notifier_integration.py
-
+├── src/
+│   └── components/
+│       ├── ai_conversation_client/
+│       │   ├── api.py              # Interface definition
+│       │   └── tests/              # Contract tests
+├── docs/
+│   └── interface.md                # API specification
+└── .circleci/                      # CI pipeline
 ```
 
----
-
 ## Contributing
-We welcome contributions! Please follow these steps:
-1. Fork the repository.
-2. Create a new branch:
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-3. Make your changes and commit them:
-   ```bash
-   git commit -m "Add your feature"
-   ```
-4. Push to the branch:
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-5. Open a pull request and follow the template.
 
----
-
-## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
-
-## Acknowledgments
-- [Nose2](https://nose2.readthedocs.io/) for testing.
-- [Ruff](https://beta.ruff.rs/docs/) for linting and formatting.
-- [CircleCI](https://circleci.com/) for CI/CD.
-
----
-
-## Contact
-For questions or feedback, please open an issue or contact the maintainers.
+1. Fork the repository
+2. Implement new AI providers (see `interface.md`)
+3. Maintain 100% test coverage
+4. Submit PR with:
+   - Type checking passing
+   - Lint/formatting clean
+   - Updated documentation
