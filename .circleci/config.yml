@@ -10,7 +10,8 @@ jobs:
 
       - run:
           name: Install UV
-          command: pip install uv
+          command: |
+            curl -LsSf https://astral.sh/uv/install.sh | sh
 
       - run:
           name: Create uv virtual environment
@@ -95,7 +96,8 @@ jobs:
 
       - run:
           name: Install UV
-          command: pip install uv
+          command: |
+            curl -LsSf https://astral.sh/uv/install.sh | sh
 
       - run:
           name: Create uv virtual environment
@@ -108,14 +110,14 @@ jobs:
             echo "source .venv/bin/activate" >> $BASH_ENV
 
       - run:
-          name: Install dependencies and Black
+          name: Install dependencies and Ruff
           command: |
             uv pip install -e ".[dev]"
-            uv pip install black
-
+            uv pip install ruff
+  
       - run:
-          name: Run Black (code formatting)
-          command: black src/ tests/
+          name: Run Ruff (code linting and formatting)
+          command: ruff check src/ tests/ --fix
 
   dependency_scanning:
     docker:
@@ -125,7 +127,8 @@ jobs:
 
       - run:
           name: Install UV
-          command: pip install uv
+          command: |
+            curl -LsSf https://astral.sh/uv/install.sh | sh
 
       - run:
           name: Create uv virtual environment
