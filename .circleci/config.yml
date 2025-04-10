@@ -85,6 +85,8 @@ jobs:
       - store_artifacts:
           path: test-results/
           destination: test-results
+      
+      - run: pytest src/components/ai_conversation_client/tests/
 
   code_quality:
     docker:
@@ -96,7 +98,7 @@ jobs:
           name: Install UV
           command: |
             curl -LsSf https://astral.sh/uv/install.sh | sh
-  
+
       - run:
           name: Create uv virtual environment
           command: uv venv
@@ -116,7 +118,6 @@ jobs:
       - run:
           name: Run Ruff (code linting and formatting)
           command: ruff check src/ tests/ --fix
-
 
   dependency_scanning:
     docker:

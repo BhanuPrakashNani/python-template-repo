@@ -32,7 +32,6 @@ htmlcov/
 .coverage
 .coverage.*
 .cache
-nosetests.xml
 *.cover
 *.py,cover
 .hypothesis/
