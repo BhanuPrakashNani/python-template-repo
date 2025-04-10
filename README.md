@@ -84,11 +84,16 @@ class MyAIClient(AIConversationClient):
 - [UV](https://github.com/astral-sh/uv) (`pip install uv`)
 
 ### Installation
-```bash
-git clone https://github.com/BhanuPrakashNani/python-template-repo.git
-cd python-template-repo
-uv pip install -e ".[dev]"
-```
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/BhanuPrakashNani/python-template-repo.git
+   cd python-template-repo
+   ```
+
+2. Install dependencies using UV:
+   ```bash
+   uv pip install -e ".[dev]"
+   ```
 
 ### Running Tests
 ```bash

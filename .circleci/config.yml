@@ -93,7 +93,7 @@ jobs:
       - image: cimg/python:3.11
     steps:
       - checkout
-
+  
       - run:
           name: Install UV
           command: |
@@ -102,13 +102,13 @@ jobs:
       - run:
           name: Create uv virtual environment
           command: uv venv
-
+  
       - run:
           name: Set environment variables
           command: |
             echo "export PYTHONPATH=$(pwd)" >> $BASH_ENV
             echo "source .venv/bin/activate" >> $BASH_ENV
-
+  
       - run:
           name: Install dependencies and Ruff
           command: |
