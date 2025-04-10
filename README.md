@@ -32,7 +32,7 @@ This repository serves as a **template** for Python projects. It includes a pre-
 ### Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/<your-username>/python-template-repo.git
+   git clone https://github.com/BhanuPrakashNani/python-template-repo.git
    cd python-template-repo
    ```
 
