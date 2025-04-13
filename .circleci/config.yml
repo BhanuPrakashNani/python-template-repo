@@ -31,6 +31,7 @@ jobs:
             uv pip install pytest pytest-cov pytest-xdist pytest-reportlog
 
       # - run:
+      # Nose 2 is not used in this example, but can be uncommented if needed
       #     name: Verify nose2 installation
       #     command: nose2 -h | head -1
 
