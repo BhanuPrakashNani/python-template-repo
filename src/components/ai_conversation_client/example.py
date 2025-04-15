@@ -1,6 +1,7 @@
 """Example usage of the CerebrasClient.
 
-This script demonstrates how to use the CerebrasClient to interact with the Cerebras API.
+This script demonstrates how to use the CerebrasClient to interact with the 
+Cerebras API.
 """
 
 import os
@@ -33,13 +34,14 @@ def main() -> None:
             capabilities = cast(list[str], model["capabilities"])
             print(f"    Capabilities: {', '.join(capabilities)}")
             print(f"    Max tokens: {model['max_tokens']}")
-            print(
-                f"    Knowledge cutoff: {model.get('knowledge_cutoff', 'Not specified')}"
-            )
+            cutoff_info = f"    Knowledge cutoff: {model.get('knowledge_cutoff', 'Not specified')}"
+            print(cutoff_info)
             if model.get("private_preview"):
-                print(
-                    "    Note: This model is in private preview. Contact Cerebras for access."
+                private_notice = (
+                    "    Note: This model is in private preview. "
+                    "Contact Cerebras for access."
                 )
+                print(private_notice)
 
         # Create a new session
         user_id = "example_user_001"

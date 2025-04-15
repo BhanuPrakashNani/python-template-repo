@@ -5,8 +5,12 @@ set -e
 echo "Ruff version:"
 ruff --version
 
-echo "Running Ruff with line length errors (E501) ignored..."
-ruff check src/ tests/ --ignore=E501 --fix
+echo "Running Ruff to fix all issues including line length errors..."
+# Run formatter first to address line wrapping
+ruff format src/ tests/
 
-# Exit with success
-exit 0 
+# Then run check with --fix to address remaining issues
+ruff check src/ tests/ --fix
+
+# Exit with success if ruff check succeeds
+exit $? 

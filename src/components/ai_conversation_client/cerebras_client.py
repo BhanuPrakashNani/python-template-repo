@@ -64,7 +64,8 @@ class CerebrasClient(AIConversationClient):
 
         Args:
             api_key: API key for authentication with the Cerebras service.
-                If not provided, attempts to read from CEREBRAS_API_KEY environment variable.  # noqa
+                If not provided, attempts to read from CEREBRAS_API_KEY
+                environment variable.
         # fmt: on
         """
         self.api_key = api_key or os.environ.get("CEREBRAS_API_KEY")
@@ -94,7 +95,8 @@ class CerebrasClient(AIConversationClient):
         Args:
             session_id: Unique identifier for the conversation session.
             message: The text message to send to the AI.
-            attachments: Optional list of file paths or URLs to include (not supported yet).  # noqa
+            attachments: Optional list of file paths or URLs to include
+                (not supported yet).
 
         Returns:
             Dictionary containing:
@@ -231,7 +233,8 @@ class CerebrasClient(AIConversationClient):
 
         Args:
             user_id: Unique identifier for the user.
-            model: Optional model identifier to use. Defaults to "llama-4-scout-17b-16e-instruct".  # noqa
+            model: Optional model identifier to use.
+                Defaults to "llama-4-scout-17b-16e-instruct".
 
         Returns:
             New session identifier.
@@ -479,7 +482,8 @@ class CerebrasClient(AIConversationClient):
 
         Args:
             session_id: Session identifier for the conversation.
-            format: Format to export the chat history (currently only 'json' is supported).  # noqa
+            format: Format to export the chat history
+                (currently only 'json' is supported).
 
         Returns:
             String representation of the chat history in the specified format.

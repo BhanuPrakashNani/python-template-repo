@@ -179,8 +179,10 @@ def main() -> None:
             print("\nActive sessions in the current process:")
             for session_id, session in client._sessions.items():
                 status = "Active" if session["active"] else "Ended"
+                message_count = len(session["history"])
                 print(
-                    f"  - {session_id} ({status}): Model {session['model']}, {len(session['history'])} messages"
+                    f"  - {session_id} ({status}): Model {session['model']}, "
+                    f"{message_count} messages"
                 )
 
     elif args.command == "export":
@@ -283,9 +285,11 @@ def main() -> None:
             user_id = f"cli_user_{datetime.now().strftime('%Y%m%d%H%M%S')}"
             session_id = client.start_new_session(user_id, model=args.model)
             print(f"Starting chat with model: {args.model}")
-            print(
-                f"Session ID: {session_id} (save this if you want to continue this session later)"
+            session_info = (
+                f"Session ID: {session_id} "
+                f"(save this if you want to continue this session later)"
             )
+            print(session_info)
 
         print("\nType 'exit' or 'quit' to end the conversation.")
         print("Type 'help' to see available commands.")
@@ -308,9 +312,11 @@ def main() -> None:
                     print("  metrics - Show usage metrics for this session")
                     print("  export - Export the conversation history as JSON")
                     print("  summarize - Generate a summary of the conversation")
-                    print(
-                        "  attach <file_path> [description] - Attach a file to the conversation"
+                    attach_help = (
+                        "  attach <file_path> [description] - "
+                        "Attach a file to the conversation"
                     )
+                    print(attach_help)
                     continue
 
                 elif user_input.lower() == "models":

@@ -115,10 +115,18 @@ jobs:
             uv pip install ruff
   
       - run:
-          name: Run Ruff (code linting and formatting)
+          name: Run Ruff formatting
           command: |
-            chmod +x .circleci/lint.sh
-            .circleci/lint.sh
+            echo "Running Ruff formatter to fix line length and formatting issues..."
+            ruff format src/ tests/
+  
+      - run:
+          name: Run Ruff linting
+          command: |
+            echo "Running Ruff linter to check for code quality issues..."
+            ruff check src/ tests/ --fix
+            # Run a final check to ensure all issues are fixed
+            ruff check src/ tests/
 
 
   dependency_scanning:

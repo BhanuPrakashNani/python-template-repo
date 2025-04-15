@@ -1,11 +1,8 @@
 """AI Conversation Client module.
 
 # fmt: off
-
-# fmt: off
-This module provides a standardized interface for interacting with AI conversation services
-and a concrete implementation for the Cerebras API.
-# fmt: on
+This module provides a standardized interface for interacting with
+AI conversation services and a concrete implementation for the Cerebras API.
 # fmt: on
 """
 
