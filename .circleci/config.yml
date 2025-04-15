@@ -116,7 +116,9 @@ jobs:
   
       - run:
           name: Run Ruff (code linting and formatting)
-          command: ruff check src/ tests/ --fix
+          command: |
+            chmod +x .circleci/lint.sh
+            .circleci/lint.sh
 
 
   dependency_scanning:
