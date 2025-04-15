@@ -12,8 +12,6 @@ select = [
     "ANN",  # flake8-annotations
 ]
 ignore = [
-    "ANN101",  # Missing type annotation for `self` in method
-    "ANN102",  # Missing type annotation for `cls` in classmethod
     "ANN401",  # Dynamically typed expressions are disallowed
 ]
 
