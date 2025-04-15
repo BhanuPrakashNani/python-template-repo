@@ -1,8 +1,25 @@
 [tool.ruff]
-line-length = 88
-target-version = "py311"
-select = ["E", "F", "W", "C90"]
-ignore = ["E501"]
+target-version = "py38"
+line-length = 120
+src = ["src", "tests"]
+extend-exclude = ["venv", "env", ".env", ".venv"]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle
+    "F",  # pyflakes
+    "W",  # warnings
+    "ANN",  # flake8-annotations
+]
+ignore = [
+    "ANN101",  # Missing type annotation for `self` in method
+    "ANN102",  # Missing type annotation for `cls` in classmethod
+    "ANN401",  # Dynamically typed expressions are disallowed
+    "E501",    # Line too long
+]
+
+[tool.ruff.lint.per-file-ignores]
+"src/components/ai_conversation_client/*.py" = ["E501"]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -19,7 +36,9 @@ name = "python-template-repo"
 version = "0.1.0"
 description = "Python template repository"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "requests>=2.32.0",
+]
 
 [project.optional-dependencies]
 dev = [
@@ -33,6 +52,8 @@ dev = [
     "black",
     "flake8",
     "bandit",
+    "types-requests",
+    "pytest-stub",
 ]
 
 [build-system]
