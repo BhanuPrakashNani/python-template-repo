@@ -1,8 +1,23 @@
 [tool.ruff]
+target-version = "py38"
 line-length = 88
-target-version = "py311"
-select = ["E", "F", "W", "C90"]
-ignore = ["E501"]
+src = ["src", "tests"]
+extend-exclude = ["venv", "env", ".env", ".venv"]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle
+    "F",  # pyflakes
+    "W",  # warnings
+    "ANN",  # flake8-annotations
+]
+ignore = [
+    "ANN401",  # Dynamically typed expressions are disallowed
+    "ANN101",  # Missing type annotation for `self` in method
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Add any other ignore patterns here if needed, but no E501
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -19,7 +34,9 @@ name = "python-template-repo"
 version = "0.1.0"
 description = "Python template repository"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "requests>=2.32.0",
+]
 
 [project.optional-dependencies]
 dev = [
@@ -33,6 +50,8 @@ dev = [
     "black",
     "flake8",
     "bandit",
+    "types-requests",
+    "pytest-stub",
 ]
 
 [build-system]

@@ -1,0 +1,40 @@
+[project]
+name = "ai_conversation_client"
+version = "0.1.0"
+description = "AI Conversation Client interface and implementations"
+requires-python = ">=3.11"
+dependencies = [
+    "requests>=2.28.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "mypy",
+]
+
+[tool.ruff.lint]
+select = ["F", "E", "W", "I", "UP", "D", "ANN"]
+ignore = ["D100", "D104", "D107", "ANN101"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests",
+]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta" 
