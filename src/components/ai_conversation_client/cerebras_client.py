@@ -433,7 +433,8 @@ class CerebrasClient(AIConversationClient):
             "messages": [
                 {
                     "role": "system",
-                    "content": "You are a helpful assistant that summarizes conversations.",  # noqa
+                    "content": """You are a helpful assistant that summarizes
+                     conversations.""",
                 },
                 {"role": "user", "content": summary_prompt},
             ],
@@ -446,9 +447,9 @@ class CerebrasClient(AIConversationClient):
             response = requests.post(url, headers=self._headers, json=payload)
             response.raise_for_status()
 
-            # Extract the summary
+            # Extract the summary with explicit type annotation
             response_data = response.json()
-            summary = response_data["choices"][0]["message"]["content"].strip()
+            summary: str = response_data["choices"][0]["message"]["content"].strip()
 
             # Update usage metrics
             if "usage" in response_data:
