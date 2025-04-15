@@ -167,9 +167,11 @@ def main() -> None:
             if model.get("knowledge_cutoff"):
                 print(f"    Knowledge cutoff: {model['knowledge_cutoff']}")
             if model.get("private_preview"):
-                print(
-                    "    Note: This model is in private preview. Contact Cerebras for access."
+                preview_note = (
+                    "    Note: This model is in private preview. "
+                    "Contact Cerebras for access."
                 )
+                print(preview_note)
 
     elif args.command == "sessions":
         # Since we don't have persistent sessions, just print a message
@@ -396,9 +398,11 @@ def main() -> None:
                                     f"    Knowledge cutoff: {model['knowledge_cutoff']}"
                                 )
                             if model.get("private_preview"):
-                                print(
-                                    "    Note: This model is in private preview. Contact Cerebras for access."
+                                preview_note = (
+                                    "    Note: This model is in private preview. "
+                                    "Contact Cerebras for access."
                                 )
+                                print(preview_note)
                         print("\nUsage: model <model_id>")
                     else:
                         # Extract model ID from command
@@ -406,6 +410,12 @@ def main() -> None:
                         try:
                             if client.switch_model(session_id, new_model_id):
                                 print(f"\nSwitched to model: {new_model_id}")
+                                note = (
+                                    "Note: This model change applies to future "
+                                    "messages only. Previous messages were "
+                                    "processed with the prior model."
+                                )
+                                print(note)
                             else:
                                 print(f"\nFailed to switch to model: {new_model_id}")
                         except ValueError as e:
