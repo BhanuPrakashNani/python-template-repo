@@ -1,5 +1,3 @@
-from components.calculator import Calculator
-from components.logger import Logger
-from components.notifier import Notifier
+from components.ai_conversation_client.api import AIConversationClient
 
-__all__ = ["Calculator", "Logger", "Notifier"]
+__all__ = ["AIConversationClient"]
