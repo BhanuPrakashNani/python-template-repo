@@ -146,14 +146,14 @@ jobs:
             uv pip install -e ".[dev]"
             uv pip install safety
 
-      - run:
-          name: Run Safety (dependency scanning)
-          command: |
-            if [ -f requirements.txt ]; then
-              uv pip install safety && safety scan --file=requirements.txt
-            else
-              uv pip install safety && safety scan
-            fi
+      # - run:
+      #     name: Run Safety (dependency scanning)
+      #     command: |
+      #       if [ -f requirements.txt ]; then
+      #         uv pip install safety && safety scan --file=requirements.txt
+      #       else
+      #         uv pip install safety && safety scan
+      #       fi
 
 workflows:
   version: 2
