@@ -5,19 +5,24 @@ Defines the abstract interface for interacting with AI conversation services.
 
 from datetime import datetime
 
+from .interface import AIConversationClientInterface, APIClientProtocol
 
-class AIConversationClient:
+
+class AIConversationClient(AIConversationClientInterface):
     """Interface for interacting with AI conversation services.
 
     This abstract class defines the standard interface that all AI conversation client
     implementations must follow.
     """
 
-    def __init__(self, api_key: str | None = None) -> None:
+    def __init__(
+        self, api_client: APIClientProtocol, api_key: str | None = None
+    ) -> None:
         """Initialize a new AI conversation client instance.
 
         Args:
             api_key: Optional API key for authentication with the service.
+            api_client: An instance of a class implementing the APIClientProtocol.
         """
         raise NotImplementedError()
 

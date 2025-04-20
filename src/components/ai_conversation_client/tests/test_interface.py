@@ -1,133 +1,139 @@
-"""Unit tests for the AI Conversation Client interface.
+"""Unit tests for the AIConversationClientInterface contract.
 
-These tests verify the contract defined by the AIConversationClient abstract class.
+These tests validate a mock implementation of the AIConversationClientInterface.
 """
 
 from datetime import datetime
-from unittest.mock import Mock
+from typing import cast
+from unittest.mock import Mock, create_autospec
 
 import pytest
+from components.ai_conversation_client.interface import AIConversationClientInterface
 
-from components.ai_conversation_client.api import AIConversationClient
+
+@pytest.fixture
+def mock_interface() -> AIConversationClientInterface:
+    """
+    Fixture to create a mock AIConversationClientInterface instance.
+
+    Returns:
+        A mock object adhering to the AIConversationClientInterface.
+    """
+    mock = create_autospec(AIConversationClientInterface, instance=True)
+    return cast(AIConversationClientInterface, mock)
 
 
-class TestAIConversationClient:
-    """Test suite for AIConversationClient interface compliance."""
+def test_send_message_contract(mock_interface: AIConversationClientInterface) -> None:
+    """Verify that send_message returns dict containing 'response' and 'timestamp'."""
+    test_response = {
+        "response": "Hello, user!",
+        "attachments": [],
+        "timestamp": datetime.now(),
+    }
+    cast(Mock, mock_interface).send_message.return_value = test_response
 
-    @pytest.fixture
-    def mock_client(self) -> Mock:
-        """Create a mock AIConversationClient instance for testing.
+    result = mock_interface.send_message("sess1", "Hi there!")
+    assert isinstance(result, dict)
+    assert "response" in result
+    assert "timestamp" in result
 
-        Returns:
-            A Mock object configured with AIConversationClient's interface.
-        """
-        return Mock(spec=AIConversationClient)
 
-    def test_send_message_contract(self, mock_client: Mock) -> None:
-        """Verify send_message() adheres to its interface contract."""
-        test_response = {
-            "response": "Test reply",
-            "timestamp": datetime.now().isoformat(),
-        }
-        mock_client.send_message.return_value = test_response
+def test_get_chat_history_contract(
+    mock_interface: AIConversationClientInterface,
+) -> None:
+    """Verify that get_chat_history returns a list of messages with required fields."""
+    mock_history = [
+        {"id": "msg1", "content": "Hi", "sender": "user", "timestamp": datetime.now()},
+        {
+            "id": "msg2",
+            "content": "Hello!",
+            "sender": "ai",
+            "timestamp": datetime.now(),
+        },
+    ]
+    cast(Mock, mock_interface).get_chat_history.return_value = mock_history
 
-        result = mock_client.send_message("sess1", "Hello")
-        assert isinstance(result, dict)
-        assert "response" in result
-        assert "timestamp" in result
+    history = mock_interface.get_chat_history("sess1")
+    assert isinstance(history, list)
+    assert all(
+        "id" in m and "content" in m and "sender" in m and "timestamp" in m
+        for m in history
+    )
 
-    def test_get_chat_history_contract(self, mock_client: Mock) -> None:
-        """Verify get_chat_history() returns proper structure."""
-        mock_history = [
-            {
-                "id": "msg1",
-                "content": "Hello",
-                "sender": "user",
-                "timestamp": datetime.now().isoformat(),
-            },
-            {
-                "id": "msg2",
-                "content": "Hi there!",
-                "sender": "ai",
-                "timestamp": datetime.now().isoformat(),
-            },
-        ]
-        mock_client.get_chat_history.return_value = mock_history
 
-        history = mock_client.get_chat_history("sess1")
-        assert isinstance(history, list)
-        assert all(
-            "id" in msg and "content" in msg and "sender" in msg and "timestamp" in msg
-            for msg in history
-        )
+def test_start_new_session_contract(
+    mock_interface: AIConversationClientInterface,
+) -> None:
+    """Verify that start_new_session returns a valid session ID as a string."""
+    cast(Mock, mock_interface).start_new_session.return_value = "sess123"
+    session_id = mock_interface.start_new_session("user123", model="gpt-4")
+    assert isinstance(session_id, str)
+    assert len(session_id) > 0
 
-    def test_start_new_session_contract(self, mock_client: Mock) -> None:
-        """Verify start_new_session() returns a valid session ID."""
-        mock_client.start_new_session.return_value = "new-session-123"
 
-        session_id = mock_client.start_new_session("user1", "gpt-4")
-        assert isinstance(session_id, str)
-        assert len(session_id) > 0
-        mock_client.start_new_session.assert_called_once_with("user1", "gpt-4")
+def test_end_session_contract(mock_interface: AIConversationClientInterface) -> None:
+    """Verify that end_session returns a boolean status."""
+    cast(Mock, mock_interface).end_session.return_value = True
+    assert mock_interface.end_session("sess123") is True
 
-    def test_end_session_contract(self, mock_client: Mock) -> None:
-        """Verify end_session() returns a boolean status."""
-        mock_client.end_session.return_value = True
 
-        result = mock_client.end_session("sess1")
-        assert isinstance(result, bool)
-        mock_client.end_session.assert_called_once_with("sess1")
+def test_list_available_models_contract(
+    mock_interface: AIConversationClientInterface,
+) -> None:
+    """Verify list_available_models returns a list of models with required fields."""
+    cast(Mock, mock_interface).list_available_models.return_value = [
+        {"id": "gpt-4", "name": "GPT-4", "capabilities": ["chat"], "max_tokens": 4096}
+    ]
+    models = mock_interface.list_available_models()
+    assert isinstance(models, list)
+    assert all("id" in m and "name" in m for m in models)
 
-    def test_list_available_models_contract(self, mock_client: Mock) -> None:
-        """Verify list_available_models() returns proper structure."""
-        mock_models = [
-            {"id": "gpt-4", "name": "GPT-4", "max_tokens": 8192},
-            {"id": "claude-2", "name": "Claude 2", "max_tokens": 100000},
-        ]
-        mock_client.list_available_models.return_value = mock_models
 
-        models = mock_client.list_available_models()
-        assert isinstance(models, list)
-        assert all("id" in m and "name" in m for m in models)
+def test_switch_model_contract(mock_interface: AIConversationClientInterface) -> None:
+    """Verify that switch_model returns True when model switch is acknowledged."""
+    cast(Mock, mock_interface).switch_model.return_value = True
+    assert mock_interface.switch_model("sess123", "gpt-3")
 
-    def test_switch_model_contract(self, mock_client: Mock) -> None:
-        """Verify switch_model() returns boolean status."""
-        mock_client.switch_model.return_value = True
-        assert mock_client.switch_model("sess1", "gpt-4") is True
-        mock_client.switch_model.assert_called_once_with("sess1", "gpt-4")
 
-    def test_attach_file_contract(self, mock_client: Mock) -> None:
-        """Verify attach_file() returns boolean status."""
-        mock_client.attach_file.return_value = True
-        assert mock_client.attach_file("sess1", "doc.pdf", None) is True
-        mock_client.attach_file.assert_called_once_with("sess1", "doc.pdf", None)
+def test_attach_file_contract(mock_interface: AIConversationClientInterface) -> None:
+    """Verify that attach_file returns True when file is successfully attached."""
+    cast(Mock, mock_interface).attach_file.return_value = True
+    result = mock_interface.attach_file(
+        "sess1", "/path/to/file.txt", description="example"
+    )
+    assert result is True
 
-    def test_get_usage_metrics_contract(self, mock_client: Mock) -> None:
-        """Verify get_usage_metrics() returns proper metrics."""
-        mock_metrics = {"token_count": 1500, "api_calls": 12}
-        mock_client.get_usage_metrics.return_value = mock_metrics
 
-        metrics = mock_client.get_usage_metrics("sess1")
-        assert isinstance(metrics, dict)
-        assert "token_count" in metrics
-        assert isinstance(metrics["token_count"], int)
+def test_get_usage_metrics_contract(
+    mock_interface: AIConversationClientInterface,
+) -> None:
+    """Verify that get_usage_metrics returns expected metric keys and correct types."""
+    cast(Mock, mock_interface).get_usage_metrics.return_value = {
+        "token_count": 1000,
+        "api_calls": 15,
+        "cost_estimate": 0.12,
+    }
+    metrics = mock_interface.get_usage_metrics("sess123")
+    assert "token_count" in metrics
+    assert isinstance(metrics["token_count"], int)
 
-    def test_summarize_conversation_contract(self, mock_client: Mock) -> None:
-        """Verify summarize_conversation() returns a valid summary."""
-        summary_text = "This conversation covered project scope and timelines."
-        mock_client.summarize_conversation.return_value = summary_text
 
-        result = mock_client.summarize_conversation("sess1")
-        assert isinstance(result, str)
-        assert len(result) > 0
-        mock_client.summarize_conversation.assert_called_once_with("sess1")
+def test_summarize_conversation_contract(
+    mock_interface: AIConversationClientInterface,
+) -> None:
+    """Verify that summarize_conversation returns a non-empty summary string."""
+    cast(Mock, mock_interface).summarize_conversation.return_value = (
+        "Summary of conversation"
+    )
+    result = mock_interface.summarize_conversation("sess123")
+    assert isinstance(result, str)
+    assert result.startswith("Summary")
 
-    def test_export_chat_history_contract(self, mock_client: Mock) -> None:
-        """Verify export_chat_history() returns a valid file path."""
-        mock_file_path = "/exports/sess1_history.json"
-        mock_client.export_chat_history.return_value = mock_file_path
 
-        result = mock_client.export_chat_history("sess1", format="json")
-        assert isinstance(result, str)
-        assert result.endswith(".json")
-        mock_client.export_chat_history.assert_called_once_with("sess1", format="json")
+def test_export_chat_history_contract(
+    mock_interface: AIConversationClientInterface,
+) -> None:
+    """Verify that export_chat_history returns a valid path ending with '.json'."""
+    cast(Mock, mock_interface).export_chat_history.return_value = "/tmp/chat.json"
+    path = mock_interface.export_chat_history("sess123", format="json")
+    assert path.endswith(".json")
