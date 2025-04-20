@@ -150,9 +150,9 @@ jobs:
           name: Run Safety (dependency scanning)
           command: |
             if [ -f requirements.txt ]; then
-              safety check --file=requirements.txt --full-report
+              uv pip install safety && safety scan --file=requirements.txt
             else
-              safety check --full-report
+              uv pip install safety && safety scan
             fi
 
 workflows:
