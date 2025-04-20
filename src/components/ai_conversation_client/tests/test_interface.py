@@ -8,7 +8,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from src.components.ai_conversation_client.api import AIConversationClient
+from components.ai_conversation_client.api import AIConversationClient
 
 
 class TestAIConversationClient:
@@ -35,6 +35,48 @@ class TestAIConversationClient:
         assert isinstance(result, dict)
         assert "response" in result
         assert "timestamp" in result
+
+    def test_get_chat_history_contract(self, mock_client: Mock) -> None:
+        """Verify get_chat_history() returns proper structure."""
+        mock_history = [
+            {
+                "id": "msg1",
+                "content": "Hello",
+                "sender": "user",
+                "timestamp": datetime.now().isoformat(),
+            },
+            {
+                "id": "msg2",
+                "content": "Hi there!",
+                "sender": "ai",
+                "timestamp": datetime.now().isoformat(),
+            },
+        ]
+        mock_client.get_chat_history.return_value = mock_history
+
+        history = mock_client.get_chat_history("sess1")
+        assert isinstance(history, list)
+        assert all(
+            "id" in msg and "content" in msg and "sender" in msg and "timestamp" in msg
+            for msg in history
+        )
+
+    def test_start_new_session_contract(self, mock_client: Mock) -> None:
+        """Verify start_new_session() returns a valid session ID."""
+        mock_client.start_new_session.return_value = "new-session-123"
+
+        session_id = mock_client.start_new_session("user1", "gpt-4")
+        assert isinstance(session_id, str)
+        assert len(session_id) > 0
+        mock_client.start_new_session.assert_called_once_with("user1", "gpt-4")
+
+    def test_end_session_contract(self, mock_client: Mock) -> None:
+        """Verify end_session() returns a boolean status."""
+        mock_client.end_session.return_value = True
+
+        result = mock_client.end_session("sess1")
+        assert isinstance(result, bool)
+        mock_client.end_session.assert_called_once_with("sess1")
 
     def test_list_available_models_contract(self, mock_client: Mock) -> None:
         """Verify list_available_models() returns proper structure."""
@@ -80,7 +122,7 @@ class TestAIConversationClient:
         assert len(result) > 0
         mock_client.summarize_conversation.assert_called_once_with("sess1")
 
-    def text_export_chat_history_contract(self, mock_client: Mock) -> None:
+    def test_export_chat_history_contract(self, mock_client: Mock) -> None:
         """Verify export_chat_history() returns a valid file path."""
         mock_file_path = "/exports/sess1_history.json"
         mock_client.export_chat_history.return_value = mock_file_path
