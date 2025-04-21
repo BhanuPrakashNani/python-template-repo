@@ -20,7 +20,7 @@ Example usage:
     ```
 """
 
-from typing import Any, Dict
+from typing import Any
 
 from src.components.ai_conversation_client.api import AIConversationClient
 from src.components.ai_conversation_client.cerebras_client import CerebrasClient
@@ -34,7 +34,7 @@ AIClientFactory.register_client("mock", MockAIClient)
 
 
 def get_client(
-    client_name: str, api_key: str | None = None, **kwargs: Dict[str, Any]
+    client_name: str, api_key: str | None = None, **kwargs: dict[str, Any]
 ) -> AIConversationClient:
     """Get an AI conversation client instance.
     
