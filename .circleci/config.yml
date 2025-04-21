@@ -146,15 +146,8 @@ jobs:
             uv pip install safety marshmallow<4
 
       - run:
-          name: Run Safety (dependency scanning)
-          command: |
-            if [ -f requirements.txt ]; then
-              echo "Using safety scan on requirements.txt..."
-              safety scan --file=requirements.txt --full-report
-            else
-              echo "Running full-project safety scan..."
-              safety scan --full-report
-            fi
+          name: Scan dependencies for security issues
+          command: safety scan
 
 workflows:
   version: 2
