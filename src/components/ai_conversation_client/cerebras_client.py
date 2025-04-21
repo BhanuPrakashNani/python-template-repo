@@ -229,7 +229,8 @@ class CerebrasClient(AIConversationClient):
 
         Args:
             user_id: Unique identifier for the user.
-            model: Optional model identifier to use. If not specified, defaults to Llama 4 Scout.
+            model: Optional model identifier to use.
+                Defaults to "llama-4-scout-17b-16e-instruct".
 
         Returns:
             New session identifier.
@@ -244,19 +245,19 @@ class CerebrasClient(AIConversationClient):
         available_model_ids = [m["id"] for m in self.AVAILABLE_MODELS]
         if model not in available_model_ids:
             raise ValueError(
-                f"Model {model} is not available. "
-                f"Available models: {', '.join(available_model_ids)}"
+                f"Model {model} is not available. Available models: {', '.join(available_model_ids)}"
             )
 
         # Generate a unique session ID
         session_id = str(uuid.uuid4())
 
-        # Create a new session structure
+        # Create a new session
         self._sessions[session_id] = {
             "user_id": user_id,
             "model": model,
             "history": [],
             "active": True,
+            "created_at": datetime.now(),
         }
 
         return session_id
@@ -286,8 +287,7 @@ class CerebrasClient(AIConversationClient):
                 - capabilities: List of supported features
                 - max_tokens: Maximum context length
                 - knowledge_cutoff: Date of knowledge cutoff
-                - private_preview: Whether the model is in private preview 
-                  (for some models)
+                - private_preview: Whether the model is in private preview (for some models)
         """
         return self.AVAILABLE_MODELS
 
@@ -311,8 +311,7 @@ class CerebrasClient(AIConversationClient):
         available_model_ids = [m["id"] for m in self.AVAILABLE_MODELS]
         if model_id not in available_model_ids:
             raise ValueError(
-                f"Model {model_id} is not available. "
-                f"Available models: {', '.join(available_model_ids)}"
+                f"Model {model_id} is not available. Available models: {', '.join(available_model_ids)}"
             )
 
         # Switch the model
