@@ -421,16 +421,24 @@ class CerebrasClient(AIConversationClient):
         # Make the API request for summary
         url = f"{self.API_BASE_URL}/chat/completions"
         payload = {
-            "model": session["model"],
-            "messages": messages,
+            "model": self._sessions[session_id]["model"],
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "You are a helpful assistant that summarizes conversations.",  # noqa
+                },
+                {"role": "user", "content": summary_prompt},
+            ],
             "max_tokens": 256,
         }
 
         try:
             response = requests.post(url, headers=self._headers, json=payload)
             response.raise_for_status()
+
+            # Extract the summary
             response_data = response.json()
-            summary = response_data["choices"][0]["message"]["content"]
+            summary = response_data["choices"][0]["message"]["content"].strip()
 
             # Update usage metrics
             if "usage" in response_data:
