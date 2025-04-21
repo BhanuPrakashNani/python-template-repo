@@ -18,16 +18,16 @@ class AIConversationClient(ABC):
 
     @abstractmethod
     def __init__(self, api_key: Optional[str] = None) -> None:
-        """Initialize a new AI conversation client instance.
+        """
+        Initialize a new AI conversation client instance.
 
         Args:
             api_key: Optional API key for authentication with the service.
-                    If not provided, implementation should look for environment variables.
-
-        Raises:
-            ValueError: If required authentication credentials are not provided.
+                     If not provided, the client should look for credentials
+                     in environment variables.
         """
         pass
+
 
     @abstractmethod
     def send_message(

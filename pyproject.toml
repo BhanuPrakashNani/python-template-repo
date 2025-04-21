@@ -13,7 +13,7 @@ select = [
 ]
 ignore = [
     "ANN401",  # Dynamically typed expressions are disallowed
-    "ANN101",  # Missing type annotation for `self` in method
+    
 ]
 
 [tool.ruff.lint.per-file-ignores]
