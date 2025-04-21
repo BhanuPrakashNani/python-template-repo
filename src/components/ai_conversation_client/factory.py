@@ -5,7 +5,7 @@ It implements dependency injection for client implementations, making it easier 
 implementations or configure clients as needed.
 """
 
-from typing import Dict, Optional, Type, Union
+from typing import Dict, Optional, Type, Union, Any
 
 from src.components.ai_conversation_client.api import AIConversationClient
 
@@ -33,7 +33,7 @@ class AIClientFactory:
 
     @classmethod
     def create_client(
-        cls, client_name: str, api_key: Optional[str] = None, **kwargs
+        cls, client_name: str, api_key: str | None = None, **kwargs: Dict[str, Any]
     ) -> AIConversationClient:
         """Create a new client instance.
 
@@ -51,7 +51,8 @@ class AIClientFactory:
         if client_name not in cls._client_registry:
             available_clients = ", ".join(cls._client_registry.keys())
             raise ValueError(
-                f"Client '{client_name}' not found. Available clients: {available_clients}"
+                f"Client '{client_name}' not found. "
+                f"Available clients: {available_clients}"
             )
 
         client_class = cls._client_registry[client_name]

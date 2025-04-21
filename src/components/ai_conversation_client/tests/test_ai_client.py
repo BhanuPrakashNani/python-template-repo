@@ -207,14 +207,14 @@ class TestAIClientInterface:
         # Get metrics
         metrics = client.get_usage_metrics(session_id)
         
-        # Check format
+        # Check metrics format
         assert isinstance(metrics, dict)
         assert "token_count" in metrics
-        assert isinstance(metrics["token_count"], (int, float))
+        assert isinstance(metrics["token_count"], int | float)
         assert "api_calls" in metrics
-        assert isinstance(metrics["api_calls"], (int, float))
+        assert isinstance(metrics["api_calls"], int | float)
         assert "cost_estimate" in metrics
-        assert isinstance(metrics["cost_estimate"], (int, float))
+        assert isinstance(metrics["cost_estimate"], int | float)
 
     def test_summarize_conversation(self, client: AIConversationClient) -> None:
         """Test summarizing a conversation."""

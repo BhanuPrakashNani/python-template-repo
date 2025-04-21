@@ -20,7 +20,7 @@ Example usage:
     ```
 """
 
-from typing import Optional
+from typing import Any, Dict
 
 from src.components.ai_conversation_client.api import AIConversationClient
 from src.components.ai_conversation_client.cerebras_client import CerebrasClient
@@ -33,7 +33,9 @@ AIClientFactory.register_client("cerebras", CerebrasClient)
 AIClientFactory.register_client("mock", MockAIClient)
 
 
-def get_client(client_name: str, api_key: Optional[str] = None, **kwargs) -> AIConversationClient:
+def get_client(
+    client_name: str, api_key: str | None = None, **kwargs: Dict[str, Any]
+) -> AIConversationClient:
     """Get an AI conversation client instance.
     
     This is the main factory function to get a client instance. It uses dependency
@@ -41,7 +43,8 @@ def get_client(client_name: str, api_key: Optional[str] = None, **kwargs) -> AIC
     
     Args:
         client_name: Name of the client implementation to use.
-        api_key: Optional API key. If not provided, will be read from environment variables.
+        api_key: Optional API key. If not provided, will be read from environment 
+            variables.
         **kwargs: Additional arguments to pass to the client constructor.
         
     Returns:

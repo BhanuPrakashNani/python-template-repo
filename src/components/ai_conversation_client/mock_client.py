@@ -186,7 +186,8 @@ class MockAIClient(AIConversationClient):
         available_model_ids = [m["id"] for m in self.AVAILABLE_MODELS]
         if model not in available_model_ids:
             raise ValueError(
-                f"Model {model} is not available. Available models: {', '.join(available_model_ids)}"
+                f"Model {model} is not available. "
+                f"Available models: {', '.join(available_model_ids)}"
             )
 
         # Generate a unique session ID
@@ -242,15 +243,18 @@ class MockAIClient(AIConversationClient):
         if session_id not in self._sessions:
             raise ValueError(f"Session {session_id} does not exist")
 
+        session = self._sessions[session_id]
+
         # Check if model is available
         available_model_ids = [m["id"] for m in self.AVAILABLE_MODELS]
         if model_id not in available_model_ids:
             raise ValueError(
-                f"Model {model_id} is not available. Available models: {', '.join(available_model_ids)}"
+                f"Model {model_id} is not available. "
+                f"Available models: {', '.join(available_model_ids)}"
             )
 
         # Switch the model
-        self._sessions[session_id]["model"] = model_id
+        session["model"] = model_id
         return True
 
     def attach_file(

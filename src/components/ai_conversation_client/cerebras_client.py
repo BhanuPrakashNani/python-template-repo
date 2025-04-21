@@ -386,49 +386,40 @@ class CerebrasClient(AIConversationClient):
 
         Raises:
             ValueError: If the session_id does not exist.
-            RuntimeError: If the summarization request fails.
+            RuntimeError: If the summarization fails.
         """
         if session_id not in self._sessions:
             raise ValueError(f"Session {session_id} does not exist")
 
         session = self._sessions[session_id]
 
-        # Only summarize if there are messages to summarize
-        if not session["history"]:
-            return "No conversation to summarize."
+        # Check if there's enough content to summarize
+        if len(session["history"]) < 2:
+            return "Not enough conversation to summarize."
 
-        # Prepare message history
+        # Create prompt for the summarization request
+        conversation_text = ""
+        for msg in session["history"]:
+            sender = "User" if msg["sender"] == "user" else "AI"
+            conversation_text += f"{sender}: {msg['content']}\n\n"
+
+        # Build the messages array for the API request
         messages = [
-            {"role": "system", "content": "Please provide a concise summary of the following conversation:"}
+            {
+                "role": "system",
+                "content": "Please provide a concise summary of the "
+                "following conversation:",
+            }
         ]
 
-        # Add the conversation history
-        user_messages = [msg for msg in session["history"] if msg["sender"] == "user"]
-        ai_messages = [msg for msg in session["history"] if msg["sender"] == "assistant"]
-
-        # Combine for context
-        conversation_text = ""
-        for i in range(min(len(user_messages), len(ai_messages))):
-            conversation_text += f"User: {user_messages[i]['content']}\n"
-            conversation_text += f"AI: {ai_messages[i]['content']}\n\n"
-
-        # Add any remaining messages
-        if len(user_messages) > len(ai_messages):
-            conversation_text += f"User: {user_messages[-1]['content']}\n"
-
+        # Add the conversation history as a user message
         messages.append({"role": "user", "content": conversation_text})
 
-        # Make the API request for summary
+        # Make the API request for summarization
         url = f"{self.API_BASE_URL}/chat/completions"
         payload = {
-            "model": self._sessions[session_id]["model"],
-            "messages": [
-                {
-                    "role": "system",
-                    "content": "You are a helpful assistant that summarizes conversations.",  # noqa
-                },
-                {"role": "user", "content": summary_prompt},
-            ],
+            "model": session["model"],
+            "messages": messages,
             "max_tokens": 256,
         }
 
@@ -438,7 +429,7 @@ class CerebrasClient(AIConversationClient):
 
             # Extract the summary
             response_data = response.json()
-            summary = response_data["choices"][0]["message"]["content"].strip()
+            summary = response_data["choices"][0]["message"]["content"]
 
             # Update usage metrics
             if "usage" in response_data:
@@ -449,8 +440,11 @@ class CerebrasClient(AIConversationClient):
                         "cost_estimate": 0.0,
                     }
 
-                session["metrics"]["token_count"] += response_data["usage"]["total_tokens"]
+                session["metrics"]["token_count"] += response_data["usage"][
+                    "total_tokens"
+                ]
                 session["metrics"]["api_calls"] += 1
+                # Pricing estimate based on token usage
                 session["metrics"]["cost_estimate"] += (
                     response_data["usage"]["total_tokens"] / 1000
                 ) * 0.01

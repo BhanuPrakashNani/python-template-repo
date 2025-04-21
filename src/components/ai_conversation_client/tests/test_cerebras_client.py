@@ -279,12 +279,28 @@ class TestCerebrasClient:
             "usage": {"total_tokens": 30},
         }
 
-        # Patch the requests.post method
-        with patch("requests.post", return_value=mock_response):
+        # Patch the requests.post method and check correct data is sent
+        with patch("requests.post", return_value=mock_response) as mock_post:
             summary = cerebras_client.summarize_conversation(session_id)
-
-        # Check that the summary is correct
-        assert summary == "This conversation was about AI basics."
+            
+            # Verify the API call
+            mock_post.assert_called_once()
+            
+            # Check that summary content is from the mocked response
+            assert summary == "This conversation was about AI basics."
+            
+            # Check that the request was made with correct parameters
+            _, kwargs = mock_post.call_args
+            assert "json" in kwargs
+            
+            # Verify the messages format
+            messages = kwargs["json"]["messages"]
+            assert len(messages) == 2
+            assert messages[0]["role"] == "system"
+            assert "provide a concise summary" in messages[0]["content"].lower()
+            assert messages[1]["role"] == "user"
+            assert "user: tell me about ai" in messages[1]["content"].lower()
+            assert "ai: ai stands for artificial intelligence" in messages[1]["content"].lower()
 
     def test_export_chat_history(self, cerebras_client: CerebrasClient) -> None:
         """Test export_chat_history returns the expected JSON string."""
