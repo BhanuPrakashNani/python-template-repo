@@ -1,1 +1,3 @@
- 
+# This empty file marks this package as type-annotated in accordance with PEP 561.
+# Its presence tells type checkers like mypy that the package has type annotations.
+# See https://peps.python.org/pep-0561/ for more details. 

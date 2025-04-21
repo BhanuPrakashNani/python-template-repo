@@ -12,6 +12,8 @@ A Python client for interacting with the Cerebras AI API, providing a clean and 
 * **Export**: Save conversations to JSON or text formats
 * **Summarization**: Generate AI-powered summaries of conversations
 * **Command-line Interface**: Interact with the client via a simple CLI
+* **Dependency Injection**: Factory-based client creation for better testability
+* **Abstract Interface**: Clean separation between interface and implementation
 
 ## Table of Contents
 
@@ -49,8 +51,6 @@ python -m src.components.ai_conversation_client.cli chat
 # List available models
 python -m src.components.ai_conversation_client.cli models
 
-# Show active sessions
-python -m src.components.ai_conversation_client.cli sessions
 
 # Export a conversation history
 python -m src.components.ai_conversation_client.cli export <session-id> --format json
@@ -98,10 +98,10 @@ Here's how to use the client in your Python code:
 
 ```python
 import os
-from src.components.ai_conversation_client import CerebrasClient
+from src.components.ai_conversation_client import get_client
 
-# Initialize the client
-client = CerebrasClient(api_key=os.environ.get("CEREBRAS_API_KEY"))
+# Initialize the client using the factory
+client = get_client("cerebras", api_key=os.environ.get("CEREBRAS_API_KEY"))
 
 # List available models
 models = client.list_available_models()
@@ -141,10 +141,10 @@ client.end_session(session_id)
 
 ```python
 import os
-from src.components.ai_conversation_client import CerebrasClient
+from src.components.ai_conversation_client import get_client
 
-# Initialize client
-client = CerebrasClient()
+# Initialize client using the factory
+client = get_client("cerebras")
 
 # Create multiple sessions with different models
 session1 = client.start_new_session("user1", model="llama-4-scout-17b-16e-instruct")
@@ -175,12 +175,14 @@ client.end_session(session2)
 
 ## API Reference
 
-### CerebrasClient
+### AIConversationClient
 
-The main client for interacting with the Cerebras API.
+The abstract interface defining the contract for AI conversation clients.
 
 ```python
-client = CerebrasClient(api_key="your-cerebras-api-key")  # Optional if set in environment
+# Using the factory to get a client
+from src.components.ai_conversation_client import get_client
+client = get_client("cerebras", api_key="your-cerebras-api-key")  # Optional if set in environment
 ```
 
 **Methods:**
@@ -249,7 +251,7 @@ The Cerebras AI Conversation Client is built on a clean, extensible architecture
 ### Core Components
 
 1. **`AIConversationClient` (api.py)**: Abstract interface defining the contract for AI conversation clients.
-   - Defines standard methods all AI clients must implement
+   - Defines standard methods all AI clients must implement using `abc.ABC` and `@abstractmethod`
    - Provides type hints and method signatures
    - Enables future implementations for other AI providers
 
@@ -259,7 +261,17 @@ The Cerebras AI Conversation Client is built on a clean, extensible architecture
    - Tracks usage metrics
    - Implements conversation functionalities
 
-3. **Command-line Interface (cli.py)**: User-friendly terminal interface.
+3. **`MockAIClient` (mock_client.py)**: Mock implementation for testing.
+   - Fully implements the AIConversationClient interface
+   - Provides predictable responses for testing
+   - No external API calls required
+
+4. **`AIClientFactory` (factory.py)**: Factory for creating client instances.
+   - Supports dependency injection pattern
+   - Centralizes client instantiation
+   - Simplifies adding new client implementations
+
+5. **Command-line Interface (cli.py)**: User-friendly terminal interface.
    - Provides commands for all major functionalities
    - Formats AI responses for terminal display
    - Handles interactive chat sessions
@@ -267,13 +279,14 @@ The Cerebras AI Conversation Client is built on a clean, extensible architecture
 ### Design Principles
 
 - **Interface Segregation**: Clean separation between interface and implementation
+- **Dependency Injection**: Factory-based client creation for better testability
 - **Stateless API**: Each method call is independent and can be used without dependencies
 - **Error Handling**: Comprehensive error handling with meaningful messages
-- **Type Safety**: Full type annotations for better IDE support and fewer bugs
+- **Type Safety**: Full type annotations with `py.typed` marker for better IDE support
 
 ### Data Flow
 
-1. User interacts via CLI or imports client directly
+1. User interacts via CLI or imports client using the factory
 2. Requests are formatted and sent to Cerebras API
 3. Responses are parsed, processed, and stored in conversation history
 4. Results are returned to the user in the requested format
@@ -307,9 +320,10 @@ The client can be configured in several ways:
 
 ### API Authentication
 
-1. **Direct initialization**:
+1. **Factory initialization**:
    ```python
-   client = CerebrasClient(api_key="your-api-key")
+   from src.components.ai_conversation_client import get_client
+   client = get_client("cerebras", api_key="your-api-key")
    ```
 
 2. **Environment variable**:
@@ -318,7 +332,8 @@ The client can be configured in several ways:
    ```
    Then:
    ```python
-   client = CerebrasClient()  # Reads from environment
+   from src.components.ai_conversation_client import get_client
+   client = get_client("cerebras")  # Reads from environment
    ```
 
 3. **Environment file**:
@@ -337,7 +352,7 @@ When sending messages, you can adjust parameters by modifying the `CerebrasClien
 
 ## Testing
 
-The client includes comprehensive unit tests to ensure reliability:
+The client includes comprehensive unit tests with two approaches:
 
 ```bash
 # Run all tests
@@ -349,8 +364,8 @@ pytest --cov=src.components.ai_conversation_client
 
 ### Test Components
 
-- **test_cerebras_client.py**: Tests all client methods:
-  - Initialization with API key validation
+- **test_cerebras_client.py**: Tests the concrete implementation with mocked HTTP requests
+  - API key validation
   - Session management (start/end)
   - Message sending and response handling
   - Model listing and switching
@@ -358,11 +373,20 @@ pytest --cov=src.components.ai_conversation_client
   - Usage metrics tracking
   - Error conditions and handling
 
+- **test_ai_client.py**: Tests the abstract interface using the mock implementation
+  - Factory client creation
+  - Interface contract fulfillment
+  - Full coverage of all interface methods
+
 ### Mocking Strategy
 
-Tests use `unittest.mock` to simulate API responses without making real API calls:
-- `requests.post` is mocked to return predefined responses
-- API errors are simulated to test error handling
+Two complementary approaches:
+1. **Mock HTTP requests**: Using `unittest.mock` to simulate API responses in `test_cerebras_client.py`
+2. **Mock Implementation**: Using `MockAIClient` that fully implements the interface for testing in `test_ai_client.py`
+
+### Type Checking Support
+
+The `py.typed` file marks the package as supporting type checking (PEP 561), ensuring type annotations can be used by static type checkers.
 
 ## Troubleshooting
 
@@ -430,16 +454,19 @@ pre-commit install
 
 ```
 src/components/ai_conversation_client/
-├── __init__.py          # Package exports
-├── api.py               # Interface definition
+├── __init__.py          # Package exports and client registration
+├── api.py               # Abstract interface definition
 ├── cerebras_client.py   # Cerebras implementation
+├── mock_client.py       # Mock implementation for testing
+├── factory.py           # Client factory (dependency injection)
 ├── cli.py               # Command-line interface
 ├── example.py           # Example usage
-├── py.typed             # Type checking marker
+├── py.typed             # Type checking marker (PEP 561)
 ├── pyproject.toml       # Package configuration
 └── tests/               # Test directory
     ├── __init__.py
-    └── test_cerebras_client.py
+    ├── test_cerebras_client.py
+    └── test_ai_client.py
 ```
 
 ### Code Style and Linting
@@ -460,5 +487,4 @@ flake8 src/
 * `requests` library for API calls
 * Optional development dependencies:
   * pytest (testing)
-  * mypy (type checking)
-  * flake8 (linting) 
+  * mypy (type checking) 

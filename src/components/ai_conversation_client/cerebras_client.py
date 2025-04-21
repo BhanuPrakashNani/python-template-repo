@@ -7,11 +7,12 @@ import json
 import os
 import uuid
 from datetime import datetime
-from typing import Any, cast
+from typing import Any, Dict, List, Optional, Union, cast
 
 import requests
 
 from src.components.ai_conversation_client.api import AIConversationClient
+from src.components.ai_conversation_client.factory import AIClientFactory
 
 
 class CerebrasClient(AIConversationClient):
@@ -57,16 +58,16 @@ class CerebrasClient(AIConversationClient):
         },
     ]
 
-    def __init__(self, api_key: str | None = None) -> None:
+    def __init__(self, api_key: Optional[str] = None) -> None:
         """Initialize a new Cerebras AI conversation client instance.
-
-        # fmt: off
 
         Args:
             api_key: API key for authentication with the Cerebras service.
                 If not provided, attempts to read from CEREBRAS_API_KEY
                 environment variable.
-        # fmt: on
+
+        Raises:
+            ValueError: If no API key is provided and none is found in environment variables.
         """
         self.api_key = api_key or os.environ.get("CEREBRAS_API_KEY")
 
@@ -77,7 +78,7 @@ class CerebrasClient(AIConversationClient):
             )
 
         # Dictionary to store active conversation sessions
-        self._sessions: dict[str, dict[str, Any]] = {}
+        self._sessions: Dict[str, Dict[str, Any]] = {}
 
         # Headers for API requests
         self._headers = {
@@ -86,11 +87,9 @@ class CerebrasClient(AIConversationClient):
         }
 
     def send_message(
-        self, session_id: str, message: str, attachments: list[str] | None = None
-    ) -> dict[str, str | list[str] | datetime]:
+        self, session_id: str, message: str, attachments: Optional[List[str]] = None
+    ) -> Dict[str, Union[str, List[str], datetime]]:
         """Send a message to the Cerebras AI service and get a response.
-
-        # fmt: off
 
         Args:
             session_id: Unique identifier for the conversation session.
@@ -107,7 +106,6 @@ class CerebrasClient(AIConversationClient):
         Raises:
             ValueError: If the session_id does not exist.
             RuntimeError: If the API request fails.
-        # fmt: on
         """
         if session_id not in self._sessions:
             raise ValueError(f"Session {session_id} does not exist")
@@ -197,8 +195,8 @@ class CerebrasClient(AIConversationClient):
             raise RuntimeError(f"Failed to send message to Cerebras API: {str(e)}")
 
     def get_chat_history(
-        self, session_id: str, limit: int | None = None
-    ) -> list[dict[str, str | datetime]]:
+        self, session_id: str, limit: Optional[int] = None
+    ) -> List[Dict[str, Union[str, datetime]]]:
         """Retrieve conversation history for a session.
 
         Args:
@@ -209,7 +207,7 @@ class CerebrasClient(AIConversationClient):
             List of message dictionaries containing:
                 - id: Message identifier
                 - content: Message text
-                - sender: 'user' or 'ai'
+                - sender: 'user', 'assistant', or 'system'
                 - timestamp: When message was sent
 
         Raises:
@@ -224,12 +222,10 @@ class CerebrasClient(AIConversationClient):
             history = history[-limit:]
 
         # Ensure we return the right type
-        return cast(list[dict[str, str | datetime]], history)
+        return cast(List[Dict[str, Union[str, datetime]]], history)
 
-    def start_new_session(self, user_id: str, model: str | None = None) -> str:
+    def start_new_session(self, user_id: str, model: Optional[str] = None) -> str:
         """Start a new conversation session.
-
-        # fmt: off
 
         Args:
             user_id: Unique identifier for the user.
@@ -241,7 +237,6 @@ class CerebrasClient(AIConversationClient):
 
         Raises:
             ValueError: If the specified model is not available.
-        # fmt: on
         """
         # Use default model if none specified
         model = model or "llama-4-scout-17b-16e-instruct"
@@ -250,19 +245,19 @@ class CerebrasClient(AIConversationClient):
         available_model_ids = [m["id"] for m in self.AVAILABLE_MODELS]
         if model not in available_model_ids:
             raise ValueError(
-                f"Model {model} is not available. "
-                f"Available models: {', '.join(cast(list[str], available_model_ids))}"
+                f"Model {model} is not available. Available models: {', '.join(available_model_ids)}"
             )
 
-        # Create a new session
+        # Generate a unique session ID
         session_id = str(uuid.uuid4())
 
+        # Create a new session
         self._sessions[session_id] = {
             "user_id": user_id,
             "model": model,
             "history": [],
-            "created_at": datetime.now(),
             "active": True,
+            "created_at": datetime.now(),
         }
 
         return session_id
@@ -282,10 +277,8 @@ class CerebrasClient(AIConversationClient):
         self._sessions[session_id]["active"] = False
         return True
 
-    def list_available_models(
-        self,
-    ) -> list[dict[str, str | list[str] | int | bool]]:
-        """Get available Cerebras AI models with their capabilities.
+    def list_available_models(self) -> List[Dict[str, Union[str, List[str], int, bool]]]:
+        """Get available AI models with their capabilities.
 
         Returns:
             List of model dictionaries containing:
@@ -293,10 +286,10 @@ class CerebrasClient(AIConversationClient):
                 - name: Human-readable name
                 - capabilities: List of supported features
                 - max_tokens: Maximum context length
+                - knowledge_cutoff: Date of knowledge cutoff
+                - private_preview: Whether the model is in private preview (for some models)
         """
-        return cast(
-            list[dict[str, str | list[str] | int | bool]], self.AVAILABLE_MODELS
-        )
+        return self.AVAILABLE_MODELS
 
     def switch_model(self, session_id: str, model_id: str) -> bool:
         """Change the AI model for an active session.
@@ -309,26 +302,24 @@ class CerebrasClient(AIConversationClient):
             True if model was switched successfully, False otherwise.
 
         Raises:
-            ValueError: If the specified model is not available.
+            ValueError: If the session_id does not exist or the model_id is invalid.
         """
         if session_id not in self._sessions:
-            return False
+            raise ValueError(f"Session {session_id} does not exist")
 
         # Check if model is available
         available_model_ids = [m["id"] for m in self.AVAILABLE_MODELS]
         if model_id not in available_model_ids:
             raise ValueError(
-                f"Model {model_id} is not available. "
-                f"Available models: {', '.join(cast(list[str], available_model_ids))}"
+                f"Model {model_id} is not available. Available models: {', '.join(available_model_ids)}"
             )
 
-        # Update the session model
+        # Switch the model
         self._sessions[session_id]["model"] = model_id
-
         return True
 
     def attach_file(
-        self, session_id: str, file_path: str, description: str | None = None
+        self, session_id: str, file_path: str, description: Optional[str] = None
     ) -> bool:
         """Attach a file to the conversation context.
 
@@ -339,30 +330,24 @@ class CerebrasClient(AIConversationClient):
 
         Returns:
             True if file was attached successfully, False otherwise.
+
+        Raises:
+            ValueError: If the session_id does not exist.
+            FileNotFoundError: If the file cannot be found or accessed.
+            NotImplementedError: File attachment is not yet implemented.
         """
-        # Currently this is a stub implementation
         if session_id not in self._sessions:
-            return False
+            raise ValueError(f"Session {session_id} does not exist")
 
         # Check if file exists
         if not os.path.exists(file_path):
-            return False
+            raise FileNotFoundError(f"File not found: {file_path}")
 
-        # Add file to session
-        if "attachments" not in self._sessions[session_id]:
-            self._sessions[session_id]["attachments"] = []
+        # File attachment is not yet implemented in the Cerebras API
+        # This is a placeholder for future implementation
+        raise NotImplementedError("File attachment not yet implemented")
 
-        self._sessions[session_id]["attachments"].append(
-            {
-                "path": file_path,
-                "description": description,
-                "timestamp": datetime.now(),
-            }
-        )
-
-        return True
-
-    def get_usage_metrics(self, session_id: str) -> dict[str, int | float]:
+    def get_usage_metrics(self, session_id: str) -> Dict[str, Union[int, float]]:
         """Get usage statistics for a session.
 
         Args:
@@ -380,22 +365,18 @@ class CerebrasClient(AIConversationClient):
         if session_id not in self._sessions:
             raise ValueError(f"Session {session_id} does not exist")
 
-        # Return metrics or default values if not present
-        metrics = self._sessions[session_id].get(
-            "metrics",
-            {
+        if "metrics" not in self._sessions[session_id]:
+            # Return empty metrics if none exist yet
+            return {
                 "token_count": 0,
                 "api_calls": 0,
                 "cost_estimate": 0.0,
-            },
-        )
+            }
 
-        return cast(dict[str, int | float], metrics)
+        return self._sessions[session_id]["metrics"]
 
     def summarize_conversation(self, session_id: str) -> str:
         """Generate summary of the entire conversation.
-
-        This uses the Cerebras API to generate a summary of the conversation.
 
         Args:
             session_id: Session identifier for conversation to summarize.
@@ -405,125 +386,127 @@ class CerebrasClient(AIConversationClient):
 
         Raises:
             ValueError: If the session_id does not exist.
-            RuntimeError: If the API request fails.
+            RuntimeError: If the summarization request fails.
         """
         if session_id not in self._sessions:
             raise ValueError(f"Session {session_id} does not exist")
 
-        # Get the session history
-        history = self._sessions[session_id]["history"]
+        session = self._sessions[session_id]
 
-        if not history:
+        # Only summarize if there are messages to summarize
+        if not session["history"]:
             return "No conversation to summarize."
 
-        # Format the conversation history as a string
-        conversation_text = "\n".join(
-            [f"{msg['sender'].upper()}: {msg['content']}" for msg in history]
-        )
+        # Prepare message history
+        messages = [
+            {"role": "system", "content": "Please provide a concise summary of the following conversation:"}
+        ]
 
-        # Prepare a system message with summarization instruction
-        summary_prompt = (
-            f"Please summarize the following conversation:\n\n{conversation_text}"
-        )
+        # Add the conversation history
+        user_messages = [msg for msg in session["history"] if msg["sender"] == "user"]
+        ai_messages = [msg for msg in session["history"] if msg["sender"] == "assistant"]
 
-        # Prepare the API request
+        # Combine for context
+        conversation_text = ""
+        for i in range(min(len(user_messages), len(ai_messages))):
+            conversation_text += f"User: {user_messages[i]['content']}\n"
+            conversation_text += f"AI: {ai_messages[i]['content']}\n\n"
+
+        # Add any remaining messages
+        if len(user_messages) > len(ai_messages):
+            conversation_text += f"User: {user_messages[-1]['content']}\n"
+
+        messages.append({"role": "user", "content": conversation_text})
+
+        # Make the API request for summary
         url = f"{self.API_BASE_URL}/chat/completions"
         payload = {
-            "model": self._sessions[session_id]["model"],
-            "messages": [
-                {
-                    "role": "system",
-                    "content": "You are a helpful assistant that summarizes conversations.",  # noqa
-                },
-                {"role": "user", "content": summary_prompt},
-            ],
+            "model": session["model"],
+            "messages": messages,
             "max_tokens": 256,
-            "temperature": 0.5,
         }
 
-        # Make the API request
         try:
             response = requests.post(url, headers=self._headers, json=payload)
             response.raise_for_status()
-
-            # Extract the summary
             response_data = response.json()
-            summary = response_data["choices"][0]["message"]["content"].strip()
+            summary = response_data["choices"][0]["message"]["content"]
 
             # Update usage metrics
             if "usage" in response_data:
-                if "metrics" not in self._sessions[session_id]:
-                    self._sessions[session_id]["metrics"] = {
+                if "metrics" not in session:
+                    session["metrics"] = {
                         "token_count": 0,
                         "api_calls": 0,
                         "cost_estimate": 0.0,
                     }
 
-                self._sessions[session_id]["metrics"]["token_count"] += response_data[
-                    "usage"
-                ]["total_tokens"]
-                self._sessions[session_id]["metrics"]["api_calls"] += 1
-                # Pricing estimate based on token usage
-                self._sessions[session_id]["metrics"]["cost_estimate"] += (
+                session["metrics"]["token_count"] += response_data["usage"]["total_tokens"]
+                session["metrics"]["api_calls"] += 1
+                session["metrics"]["cost_estimate"] += (
                     response_data["usage"]["total_tokens"] / 1000
                 ) * 0.01
 
             return summary
 
         except requests.RequestException as e:
-            raise RuntimeError(
-                f"Failed to generate summary using Cerebras API: {str(e)}"
-            )
+            raise RuntimeError(f"Failed to summarize conversation: {str(e)}")
 
     def export_chat_history(self, session_id: str, format: str = "json") -> str:
         """Export chat history to a specified format.
 
-        # fmt: off
-
         Args:
             session_id: Session identifier for the conversation.
-            format: Format to export the chat history
-                (currently only 'json' is supported).
+            format: Format to export the chat history ('json' or 'txt').
 
         Returns:
             String representation of the chat history in the specified format.
 
         Raises:
-            ValueError: If the session_id does not exist or format is not supported.
-        # fmt: on
+            ValueError: If the session_id does not exist or the format is unsupported.
         """
         if session_id not in self._sessions:
             raise ValueError(f"Session {session_id} does not exist")
 
-        if format.lower() != "json":
-            raise ValueError(
-                f"Format {format} is not supported. Only 'json' is currently supported."
-            )
-
-        # Get the session history
         history = self._sessions[session_id]["history"]
 
-        # Convert history to JSON format
-        # Convert datetime objects to ISO format strings for JSON serialization
-        serializable_history = []
-        for msg in history:
-            serialized_msg = {
-                "id": msg["id"],
-                "content": msg["content"],
-                "sender": msg["sender"],
-                "timestamp": msg["timestamp"].isoformat(),
+        if format.lower() == "json":
+            # Export as JSON
+            export_data = {
+                "session_id": session_id,
+                "user_id": self._sessions[session_id]["user_id"],
+                "model": self._sessions[session_id]["model"],
+                "created_at": self._sessions[session_id]["created_at"].isoformat(),
+                "messages": [
+                    {
+                        "id": msg["id"],
+                        "content": msg["content"],
+                        "sender": msg["sender"],
+                        "timestamp": msg["timestamp"].isoformat(),
+                    }
+                    for msg in history
+                ],
             }
-            serializable_history.append(serialized_msg)
+            return json.dumps(export_data, indent=2)
 
-        # Create the JSON data structure
-        json_data = {
-            "session_id": session_id,
-            "user_id": self._sessions[session_id]["user_id"],
-            "model": self._sessions[session_id]["model"],
-            "created_at": self._sessions[session_id]["created_at"].isoformat(),
-            "messages": serializable_history,
-        }
+        elif format.lower() == "txt":
+            # Export as plain text
+            output = f"Session ID: {session_id}\n"
+            output += f"User ID: {self._sessions[session_id]['user_id']}\n"
+            output += f"Model: {self._sessions[session_id]['model']}\n"
+            output += f"Created: {self._sessions[session_id]['created_at'].isoformat()}\n\n"
+            output += "Conversation:\n\n"
 
-        # Convert to JSON string and explicitly tell mypy it's a string
-        json_str: str = json.dumps(json_data, indent=2)
-        return json_str
+            for msg in history:
+                sender = "User" if msg["sender"] == "user" else "AI"
+                time_str = msg["timestamp"].strftime("%Y-%m-%d %H:%M:%S")
+                output += f"[{time_str}] {sender}: {msg['content']}\n\n"
+
+            return output
+
+        else:
+            raise ValueError(f"Unsupported export format: {format}. Supported formats: json, txt")
+
+
+# Register the client with the factory
+AIClientFactory.register_client("cerebras", CerebrasClient)
