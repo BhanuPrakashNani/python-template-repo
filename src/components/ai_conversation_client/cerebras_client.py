@@ -67,7 +67,8 @@ class CerebrasClient(AIConversationClient):
                 environment variable.
 
         Raises:
-            ValueError: If no API key is provided and none is found in environment variables.
+            ValueError: If no API key is provided and none is found in 
+                environment variables.
         """
         self.api_key = api_key or os.environ.get("CEREBRAS_API_KEY")
 
@@ -245,7 +246,8 @@ class CerebrasClient(AIConversationClient):
         available_model_ids = [m["id"] for m in self.AVAILABLE_MODELS]
         if model not in available_model_ids:
             raise ValueError(
-                f"Model {model} is not available. Available models: {', '.join(available_model_ids)}"
+                f"Model {model} is not available. "
+                f"Available models: {', '.join(available_model_ids)}"
             )
 
         # Generate a unique session ID
@@ -287,7 +289,8 @@ class CerebrasClient(AIConversationClient):
                 - capabilities: List of supported features
                 - max_tokens: Maximum context length
                 - knowledge_cutoff: Date of knowledge cutoff
-                - private_preview: Whether the model is in private preview (for some models)
+                - private_preview: Whether the model is in private preview 
+                  (for some models)
         """
         return self.AVAILABLE_MODELS
 
@@ -311,7 +314,8 @@ class CerebrasClient(AIConversationClient):
         available_model_ids = [m["id"] for m in self.AVAILABLE_MODELS]
         if model_id not in available_model_ids:
             raise ValueError(
-                f"Model {model_id} is not available. Available models: {', '.join(available_model_ids)}"
+                f"Model {model_id} is not available. "
+                f"Available models: {', '.join(available_model_ids)}"
             )
 
         # Switch the model

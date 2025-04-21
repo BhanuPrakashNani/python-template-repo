@@ -56,7 +56,8 @@ class MockAIClient(AIConversationClient):
         """Initialize a new mock AI conversation client instance.
 
         Args:
-            api_key: Optional API key (not actually used but included for interface compatibility).
+            api_key: Optional API key (not actually used but included for 
+                interface compatibility).
         """
         self.api_key = api_key or "mock-api-key"
         self._sessions: Dict[str, Dict] = {}

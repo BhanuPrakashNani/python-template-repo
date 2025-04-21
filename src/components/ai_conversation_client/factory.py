@@ -14,7 +14,8 @@ class AIClientFactory:
     """Factory for creating AI conversation client instances.
 
     This factory manages the creation and configuration of AI conversation clients,
-    supporting dependency injection and configuration of different client implementations.
+    supporting dependency injection and configuration of different client
+    implementations.
     """
 
     _client_registry: Dict[str, Type[AIConversationClient]] = {}
