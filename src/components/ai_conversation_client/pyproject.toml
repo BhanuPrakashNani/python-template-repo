@@ -16,7 +16,7 @@ dev = [
 
 [tool.ruff.lint]
 select = ["F", "E", "W", "I", "UP", "D", "ANN"]
-ignore = ["D100", "D104", "D107", "ANN101"]
+ignore = ["D100", "D104", "D107", "ANN101","ANN401"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

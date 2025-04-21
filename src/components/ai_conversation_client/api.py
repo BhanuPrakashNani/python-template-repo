@@ -11,9 +11,9 @@ from typing import Any, List, Dict, Optional, Union
 class AIConversationClient(ABC):
     """Interface for interacting with AI conversation services.
 
-    This abstract base class defines the standard interface that all AI conversation client
-    implementations must follow. Concrete implementations should inherit from this class
-    and provide implementations for all abstract methods.
+    This abstract base class defines the standard interface that all AI conversation
+    client implementations must follow. Concrete subclasses must implement all abstract
+    methods.
     """
 
     @abstractmethod
