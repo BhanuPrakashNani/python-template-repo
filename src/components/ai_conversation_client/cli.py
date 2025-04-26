@@ -190,7 +190,7 @@ def main() -> None:
 
     elif args.command == "export":
         """Export chat history for a session in the specified format.
-        
+
         Supports JSON and text formats, and can output to file or stdout.
         """
         # Export chat history for a session
@@ -213,7 +213,7 @@ def main() -> None:
 
     elif args.command == "metrics":
         """Display usage metrics for a specific session.
-        
+
         Shows token counts, API calls, and cost estimates.
         """
         # Display metrics for a session
@@ -230,7 +230,7 @@ def main() -> None:
 
     elif args.command == "summarize":
         """Generate and display a summary of the conversation.
-        
+
         Can output to file or stdout.
         """
         # Summarize a conversation
@@ -254,7 +254,7 @@ def main() -> None:
 
     elif args.command == "attach":
         """Attach a file to a conversation session.
-        
+
         Files can have an optional description.
         """
         # Attach a file to a session
@@ -282,7 +282,7 @@ def main() -> None:
 
     elif args.command == "chat":
         """Start an interactive chat session with the AI.
-        
+
         Allows continuing an existing session or creating a new one.
         Supports inline commands for model switching, exports, and more.
         """

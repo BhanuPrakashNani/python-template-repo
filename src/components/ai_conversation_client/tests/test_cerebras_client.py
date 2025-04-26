@@ -153,11 +153,19 @@ class TestCerebrasClient:
 
         # Check that the message was added to the history
         history = cerebras_client.get_chat_history(session_id)
-        assert len(history) == 2  # User message and AI response
-        assert history[0]["content"] == "Test message"
-        assert history[0]["sender"] == "user"
-        assert history[1]["content"] == "This is a test response from the AI."
-        assert history[1]["sender"] == "assistant"
+        assert len(history) == 3  # System message, user message, and AI response
+        
+        # Find the messages by sender
+        system_messages = [msg for msg in history if msg["sender"] == "system"]
+        user_messages = [msg for msg in history if msg["sender"] == "user"]
+        ai_messages = [msg for msg in history if msg["sender"] == "assistant"]
+        
+        assert len(system_messages) == 1
+        assert len(user_messages) == 1
+        assert len(ai_messages) == 1
+        
+        assert user_messages[0]["content"] == "Test message"
+        assert ai_messages[0]["content"] == "This is a test response from the AI."
 
         # Check that usage metrics were updated
         metrics = cerebras_client.get_usage_metrics(session_id)

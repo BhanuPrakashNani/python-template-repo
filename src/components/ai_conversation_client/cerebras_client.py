@@ -277,8 +277,8 @@ class CerebrasClient(AIConversationClient):
 
         Args:
             user_id: Unique identifier for the user.
-            model: Optional model identifier to use. Defaults to 'llama-4-scout-17b-16e-instruct'
-                if not specified.
+            model: Optional model identifier to use. 
+                Defaults to 'llama-4-scout-17b-16e-instruct' if not specified.
 
         Returns:
             New session identifier.
