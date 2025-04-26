@@ -105,14 +105,32 @@ class CerebrasClient(AIConversationClient):
                 - timestamp: When the response was generated
 
         Raises:
-            ValueError: If the session_id does not exist.
+            ValueError: If the session_id does not exist or message is empty.
             RuntimeError: If the API request fails.
         """
+        # Validate session_id
+        if not session_id:
+            raise ValueError("Session ID cannot be empty")
+            
         if session_id not in self._sessions:
             raise ValueError(f"Session {session_id} does not exist")
+            
+        # Validate message
+        if not message or not message.strip():
+            raise ValueError("Message cannot be empty")
+            
+        # Validate attachments if provided
+        if attachments:
+            for attachment in attachments:
+                if not os.path.exists(attachment):
+                    raise FileNotFoundError(f"Attachment file not found: {attachment}")
 
         # Get the session data
         session = self._sessions[session_id]
+        
+        # Check if session is active
+        if not session.get("active", False):
+            raise ValueError(f"Session {session_id} is no longer active")
 
         # Add the new message to the chat history
         msg_id = str(uuid.uuid4())
@@ -147,11 +165,32 @@ class CerebrasClient(AIConversationClient):
 
         # Make the API request
         try:
-            response = requests.post(url, headers=self._headers, json=payload)
+            response = requests.post(url, headers=self._headers, json=payload, timeout=60)
+            
+            # Handle HTTP errors
+            if response.status_code == 401:
+                raise RuntimeError("Authentication failed: Invalid API key")
+            elif response.status_code == 403:
+                raise RuntimeError("Authorization failed: Insufficient permissions")
+            elif response.status_code == 404:
+                raise RuntimeError(f"Model {session['model']} not found")
+            elif response.status_code == 429:
+                raise RuntimeError("Rate limit exceeded. Please try again later")
+            elif response.status_code >= 500:
+                raise RuntimeError(f"Cerebras API server error: {response.status_code}")
+            
             response.raise_for_status()
 
             # Extract the response content
             response_data = response.json()
+            
+            # Validate response structure
+            if "choices" not in response_data or not response_data["choices"]:
+                raise RuntimeError("Invalid response format from Cerebras API")
+                
+            if "message" not in response_data["choices"][0]:
+                raise RuntimeError("Missing message content in API response")
+                
             ai_message = response_data["choices"][0]["message"]["content"]
 
             # Add the AI response to the chat history
@@ -192,8 +231,16 @@ class CerebrasClient(AIConversationClient):
                 "timestamp": ai_timestamp,
             }
 
+        except requests.Timeout:
+            raise RuntimeError("Request to Cerebras API timed out")
+        except requests.ConnectionError:
+            raise RuntimeError("Failed to connect to Cerebras API. Check your network connection")
         except requests.RequestException as e:
             raise RuntimeError(f"Failed to send message to Cerebras API: {str(e)}")
+        except json.JSONDecodeError:
+            raise RuntimeError("Invalid JSON response from Cerebras API")
+        except Exception as e:
+            raise RuntimeError(f"Unexpected error: {str(e)}")
 
     def get_chat_history(
         self, session_id: str, limit: Optional[int] = None
@@ -230,36 +277,57 @@ class CerebrasClient(AIConversationClient):
 
         Args:
             user_id: Unique identifier for the user.
-            model: Optional model identifier to use.
-                Defaults to "llama-4-scout-17b-16e-instruct".
+            model: Optional model identifier to use. Defaults to 'llama-4-scout-17b-16e-instruct'
+                if not specified.
 
         Returns:
             New session identifier.
 
         Raises:
-            ValueError: If the specified model is not available.
+            ValueError: If the specified model is not available or user_id is empty.
         """
-        # Use default model if none specified
-        model = model or "llama-4-scout-17b-16e-instruct"
-
-        # Check if model is available
-        available_model_ids = [m["id"] for m in self.AVAILABLE_MODELS]
-        if model not in available_model_ids:
+        # Validate user_id
+        if not user_id or not user_id.strip():
+            raise ValueError("User ID cannot be empty")
+            
+        # Use default model if not specified
+        model_id = model or "llama-4-scout-17b-16e-instruct"
+        
+        # Validate model exists
+        valid_models = [m["id"] for m in self.list_available_models()]
+        if model_id not in valid_models:
+            available_models = ", ".join(valid_models)
             raise ValueError(
-                f"Model {model} is not available. "
-                f"Available models: {', '.join(available_model_ids)}"
+                f"Model '{model_id}' not available. "
+                f"Available models: {available_models}"
             )
 
-        # Generate a unique session ID
+        # Generate a new session ID
         session_id = str(uuid.uuid4())
 
-        # Create a new session
+        # Create session data structure
         self._sessions[session_id] = {
+            "id": session_id,
             "user_id": user_id,
-            "model": model,
-            "history": [],
+            "model": model_id,
             "active": True,
             "created_at": datetime.now(),
+            "history": [
+                {
+                    "id": str(uuid.uuid4()),
+                    "content": (
+                        "You are a helpful AI assistant. Respond to the user's queries "
+                        "in a concise, accurate, and helpful manner."
+                    ),
+                    "sender": "system",
+                    "timestamp": datetime.now(),
+                }
+            ],
+            "metrics": {
+                "token_count": 0,
+                "api_calls": 0,
+                "cost_estimate": 0.0,
+            },
         }
 
         return session_id

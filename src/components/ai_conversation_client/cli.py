@@ -174,6 +174,7 @@ def main() -> None:
                 print(preview_note)
 
     elif args.command == "sessions":
+        """List all active sessions in the current process."""
         # Since we don't have persistent sessions, just print a message
         print("Active sessions can only be tracked within the current process.")
         print("Use the 'chat' command to start a new session.")
@@ -188,6 +189,10 @@ def main() -> None:
                 )
 
     elif args.command == "export":
+        """Export chat history for a session in the specified format.
+        
+        Supports JSON and text formats, and can output to file or stdout.
+        """
         # Export chat history for a session
         if not hasattr(client, "_sessions") or args.session_id not in client._sessions:
             print(f"Error: Session {args.session_id} not found.")
@@ -202,13 +207,16 @@ def main() -> None:
                 print(f"Chat history exported to {args.output}")
             else:
                 print(export_data)
-
         except Exception as e:
             print(f"Error exporting chat history: {str(e)}")
             sys.exit(1)
 
     elif args.command == "metrics":
-        # Show usage metrics for a session
+        """Display usage metrics for a specific session.
+        
+        Shows token counts, API calls, and cost estimates.
+        """
+        # Display metrics for a session
         if not hasattr(client, "_sessions") or args.session_id not in client._sessions:
             print(f"Error: Session {args.session_id} not found.")
             sys.exit(1)
@@ -216,19 +224,21 @@ def main() -> None:
         try:
             metrics = client.get_usage_metrics(args.session_id)
             display_metrics(metrics)
-
         except Exception as e:
-            print(f"Error getting usage metrics: {str(e)}")
+            print(f"Error getting metrics: {str(e)}")
             sys.exit(1)
 
     elif args.command == "summarize":
-        # Generate a summary of the conversation
+        """Generate and display a summary of the conversation.
+        
+        Can output to file or stdout.
+        """
+        # Summarize a conversation
         if not hasattr(client, "_sessions") or args.session_id not in client._sessions:
             print(f"Error: Session {args.session_id} not found.")
             sys.exit(1)
 
         try:
-            print("Generating conversation summary...")
             summary = client.summarize_conversation(args.session_id)
 
             if args.output:
@@ -236,23 +246,25 @@ def main() -> None:
                     f.write(summary)
                 print(f"Summary saved to {args.output}")
             else:
-                print("\nSummary:")
-                print(format_ai_response(summary))
-
+                print("\nConversation Summary:")
+                print(summary)
         except Exception as e:
-            print(f"Error generating summary: {str(e)}")
+            print(f"Error summarizing conversation: {str(e)}")
             sys.exit(1)
 
     elif args.command == "attach":
+        """Attach a file to a conversation session.
+        
+        Files can have an optional description.
+        """
         # Attach a file to a session
         if not hasattr(client, "_sessions") or args.session_id not in client._sessions:
             print(f"Error: Session {args.session_id} not found.")
             sys.exit(1)
 
         try:
-            # Check if file exists
             if not os.path.exists(args.file_path):
-                print(f"Error: File '{args.file_path}' not found.")
+                print(f"Error: File {args.file_path} not found.")
                 sys.exit(1)
 
             success = client.attach_file(
@@ -260,15 +272,20 @@ def main() -> None:
             )
 
             if success:
-                print(f"File '{args.file_path}' successfully attached to session.")
+                print(f"File {args.file_path} attached to session {args.session_id}")
             else:
-                print(f"Failed to attach file '{args.file_path}' to session.")
-
+                print("Failed to attach file")
+                sys.exit(1)
         except Exception as e:
             print(f"Error attaching file: {str(e)}")
             sys.exit(1)
 
     elif args.command == "chat":
+        """Start an interactive chat session with the AI.
+        
+        Allows continuing an existing session or creating a new one.
+        Supports inline commands for model switching, exports, and more.
+        """
         # Start or continue a chat session
         session_id = None
         if args.session_id:
