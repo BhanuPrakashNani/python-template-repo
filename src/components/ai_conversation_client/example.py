@@ -4,8 +4,8 @@ This module demonstrates how to use the AI Conversation Client interface with
 dependency injection through the factory pattern.
 """
 
-import os
 import sys
+
 from dotenv import load_dotenv
 
 from src.components.ai_conversation_client.factory import AIClientFactory
@@ -55,10 +55,10 @@ def main() -> None:
             # Send the message to the AI
             print("Sending message to AI...")
             response = client.send_message(session_id, user_message)
-            
+
             # Print the response
             print(f"\nAI: {response['response']}")
-            
+
             # Print usage metrics after each message
             metrics = client.get_usage_metrics(session_id)
             print(
@@ -69,16 +69,16 @@ def main() -> None:
 
     except KeyboardInterrupt:
         print("\nExiting conversation...")
-    
+
     # End the session
     client.end_session(session_id)
     print(f"Ended session: {session_id}")
-    
+
     # Summarize the conversation
     print("\nGenerating conversation summary...")
     summary = client.summarize_conversation(session_id)
     print(f"Summary: {summary}")
-    
+
     # Export the conversation
     print("\nExporting conversation...")
     json_export = client.export_chat_history(session_id, format="json")
