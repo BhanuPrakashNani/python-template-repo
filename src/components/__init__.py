@@ -1,3 +1,7 @@
-from src.components.ai_conversation_client.api import AIConversationClient
+"""
+Components package initialization.
+"""
 
-__all__ = ["AIConversationClient"]
+from src.components.ai_conversation_client import AIConversationClient, CerebrasClient
+
+__all__ = ["AIConversationClient", "CerebrasClient"]

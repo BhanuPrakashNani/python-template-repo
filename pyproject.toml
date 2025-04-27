@@ -1,30 +1,23 @@
-[project]
-name = "python-template-repo"
-version = "0.1.0"
-description = "Python template repository"
-requires-python = ">=3.11"
-dependencies = []
-
-[project.optional-dependencies]
-dev = [
-    "pytest",
-    "pytest-cov",
-    "ruff",
-    "mypy",
-    "uv",
-    "coverage",
-    "black",
-    "flake8",
-    "bandit",
-    "pytest-xdist"
-]
+[tool.ruff]
+target-version = "py38"
+line-length = 88
+src = ["src", "tests"]
+extend-exclude = ["venv", "env", ".env", ".venv"]
 
 [tool.ruff.lint]
-select = ["F", "E", "W", "I", "UP", "D", "ANN"]
-ignore = ["D100", "D104", "D107", "ANN101"]
+select = [
+    "E",  # pycodestyle
+    "F",  # pyflakes
+    "W",  # warnings
+    "ANN",  # flake8-annotations
+]
+ignore = [
+    "ANN401",  # Dynamically typed expressions are disallowed
+    
+]
 
-[tool.ruff.lint.pydocstyle]
-convention = "google"
+[tool.ruff.lint.per-file-ignores]
+# Add any other ignore patterns here if needed, but no E501
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -34,8 +27,30 @@ testpaths = [
     "src/components/ai_conversation_client/tests"
 ]
 
-[tool.mypy]
-plugins = ["typeshed_client.plugin"]
+[project]
+name = "python-template-repo"
+version = "0.1.0"
+description = "Python template repository"
+requires-python = ">=3.11"
+dependencies = [
+    "requests>=2.32.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "mypy",
+    "uv",
+    "nose2[coverage_plugin]",
+    "coverage",
+    "black",
+    "flake8",
+    "bandit",
+    "types-requests",
+    "pytest-stub",
+]
 
 [build-system]
 requires = ["setuptools>=61.0"]
