@@ -24,9 +24,7 @@ minversion = "6.0"
 addopts = "-ra -q"
 testpaths = [
     "tests",
-    "src/components/calculator/tests",
-    "src/components/logger/tests",
-    "src/components/notifier/tests"
+    "src/components/ai_conversation_client/tests"
 ]
 
 [project]

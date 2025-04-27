@@ -76,6 +76,8 @@ jobs:
       - store_artifacts:
           path: test-results/
           destination: test-results
+      
+      - run: pytest src/components/ai_conversation_client/tests/
 
   code_quality:
     docker:
@@ -109,7 +111,7 @@ jobs:
           command: |
             echo "Running Ruff formatter to fix line length and formatting issues..."
             ruff format src/ tests/
-
+            
       - run:
           name: Run Ruff linting
           command: |
@@ -154,7 +156,6 @@ jobs:
               echo "Running full-project safety check..."
               safety check --full-report
             fi
-
 
 workflows:
   version: 2
