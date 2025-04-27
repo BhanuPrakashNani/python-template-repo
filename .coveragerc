@@ -1,6 +1,10 @@
 [run]
 source = src
-omit = */tests/*
+omit =
+    */tests/*
+    *example.py
+    *main.py
+    */integration/*
 
 [report]
 exclude_lines =
