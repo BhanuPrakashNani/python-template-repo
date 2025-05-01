@@ -47,14 +47,10 @@ class TestCliFormat(unittest.TestCase):
 
     def test_display_metrics(self) -> None:
         """Test the display of usage metrics."""
-        metrics = {
-            "token_count": 1234,
-            "api_calls": 5,
-            "cost_estimate": 0.01234
-        }
+        metrics = {"token_count": 1234, "api_calls": 5, "cost_estimate": 0.01234}
 
         # Capture stdout to verify output
-        with patch('sys.stdout', new=io.StringIO()) as fake_stdout:
+        with patch("sys.stdout", new=io.StringIO()) as fake_stdout:
             display_metrics(metrics)
             output = fake_stdout.getvalue()
 
@@ -66,7 +62,9 @@ class TestCliFormat(unittest.TestCase):
 @pytest.fixture
 def mock_cerebras_client() -> MagicMock:
     """Create a mock CerebrasClient for testing CLI commands."""
-    with patch('src.components.ai_conversation_client.cli.CerebrasClient') as mock_client_class:
+    with patch(
+        "src.components.ai_conversation_client.cli.CerebrasClient"
+    ) as mock_client_class:
         mock_client = MagicMock()
         mock_client_class.return_value = mock_client
 
@@ -107,10 +105,11 @@ class TestCliCommands:
     def test_models_command(self, mock_cerebras_client: MagicMock) -> None:
         """Test the 'models' command."""
         test_args = ["cli.py", "models"]
-        with patch.object(sys, 'argv', test_args), \
-             patch('sys.stdout', new=io.StringIO()) as fake_stdout, \
-             patch.dict(os.environ, {"CEREBRAS_API_KEY": "test-api-key"}):
-
+        with (
+            patch.object(sys, "argv", test_args),
+            patch("sys.stdout", new=io.StringIO()) as fake_stdout,
+            patch.dict(os.environ, {"CEREBRAS_API_KEY": "test-api-key"}),
+        ):
             main()
 
             output = fake_stdout.getvalue()
@@ -123,33 +122,33 @@ class TestCliCommands:
     def test_metrics_command(self, mock_cerebras_client: MagicMock) -> None:
         """Test the 'metrics' command."""
         test_args = ["cli.py", "metrics", "test-session-id"]
-        with patch.object(sys, 'argv', test_args), \
-             patch('sys.stdout', new=io.StringIO()) as fake_stdout, \
-             patch.dict(os.environ, {"CEREBRAS_API_KEY": "test-api-key"}):
-
+        with (
+            patch.object(sys, "argv", test_args),
+            patch("sys.stdout", new=io.StringIO()) as fake_stdout,
+            patch.dict(os.environ, {"CEREBRAS_API_KEY": "test-api-key"}),
+        ):
             # Mock internal session tracking
-            mock_cerebras_client._sessions = {
-                "test-session-id": {"history": []}
-            }
+            mock_cerebras_client._sessions = {"test-session-id": {"history": []}}
 
             main()
 
             output = fake_stdout.getvalue()
             assert "Token count:" in output
 
-            mock_cerebras_client.get_usage_metrics.assert_called_once_with("test-session-id")
+            mock_cerebras_client.get_usage_metrics.assert_called_once_with(
+                "test-session-id"
+            )
 
     def test_export_command(self, mock_cerebras_client: MagicMock) -> None:
         """Test the 'export' command."""
         test_args = ["cli.py", "export", "test-session-id", "--format", "json"]
-        with patch.object(sys, 'argv', test_args), \
-             patch('sys.stdout', new=io.StringIO()) as fake_stdout, \
-             patch.dict(os.environ, {"CEREBRAS_API_KEY": "test-api-key"}):
-
+        with (
+            patch.object(sys, "argv", test_args),
+            patch("sys.stdout", new=io.StringIO()) as fake_stdout,
+            patch.dict(os.environ, {"CEREBRAS_API_KEY": "test-api-key"}),
+        ):
             # Mock internal session tracking
-            mock_cerebras_client._sessions = {
-                "test-session-id": {"history": []}
-            }
+            mock_cerebras_client._sessions = {"test-session-id": {"history": []}}
 
             main()
 
@@ -163,48 +162,51 @@ class TestCliCommands:
     def test_summarize_command(self, mock_cerebras_client: MagicMock) -> None:
         """Test the 'summarize' command."""
         test_args = ["cli.py", "summarize", "test-session-id"]
-        with patch.object(sys, 'argv', test_args), \
-             patch('sys.stdout', new=io.StringIO()) as fake_stdout, \
-             patch.dict(os.environ, {"CEREBRAS_API_KEY": "test-api-key"}):
-
+        with (
+            patch.object(sys, "argv", test_args),
+            patch("sys.stdout", new=io.StringIO()) as fake_stdout,
+            patch.dict(os.environ, {"CEREBRAS_API_KEY": "test-api-key"}),
+        ):
             # Mock internal session tracking
-            mock_cerebras_client._sessions = {
-                "test-session-id": {"history": []}
-            }
+            mock_cerebras_client._sessions = {"test-session-id": {"history": []}}
 
             main()
 
             output = fake_stdout.getvalue()
             assert "Test summary" in output
 
-            mock_cerebras_client.summarize_conversation.assert_called_once_with("test-session-id")
+            mock_cerebras_client.summarize_conversation.assert_called_once_with(
+                "test-session-id"
+            )
 
     def test_missing_api_key(self, mock_cerebras_client: MagicMock) -> None:
         """Test error handling when API key is missing."""
         test_args = ["cli.py", "models"]
-        with patch.object(sys, 'argv', test_args), \
-             patch('sys.stdout', new=io.StringIO()) as fake_stdout, \
-             patch.dict(os.environ, {}, clear=True), \
-             patch('os.path.exists', return_value=False), \
-             patch('sys.exit') as mock_exit:  # Mock sys.exit to prevent test from actually exiting
-
+        with (
+            patch.object(sys, "argv", test_args),
+            patch("sys.stdout", new=io.StringIO()) as fake_stdout,
+            patch.dict(os.environ, {}, clear=True),
+            patch("os.path.exists", return_value=False),
+            patch("sys.exit") as mock_exit,
+        ):  # Mock sys.exit to prevent test from actually exiting
             main()
 
             # Check that the error message is printed
             output = fake_stdout.getvalue()
             assert "CEREBRAS_API_KEY environment variable is required" in output
-            
+
             # Verify that sys.exit was called with exit code 1
             mock_exit.assert_called_once_with(1)
 
     def test_session_not_found(self, mock_cerebras_client: MagicMock) -> None:
         """Test error handling when session ID is not found."""
         test_args = ["cli.py", "metrics", "nonexistent-session-id"]
-        with patch.object(sys, 'argv', test_args), \
-             patch('sys.stdout', new=io.StringIO()) as fake_stdout, \
-             patch.dict(os.environ, {"CEREBRAS_API_KEY": "test-api-key"}), \
-             patch('sys.exit') as mock_exit:  # Mock sys.exit to prevent test from actually exiting
-
+        with (
+            patch.object(sys, "argv", test_args),
+            patch("sys.stdout", new=io.StringIO()) as fake_stdout,
+            patch.dict(os.environ, {"CEREBRAS_API_KEY": "test-api-key"}),
+            patch("sys.exit") as mock_exit,
+        ):  # Mock sys.exit to prevent test from actually exiting
             # Mock internal session tracking with empty sessions
             mock_cerebras_client._sessions = {}
 
@@ -213,6 +215,6 @@ class TestCliCommands:
             # Check that the error message is printed
             output = fake_stdout.getvalue()
             assert "not found" in output
-            
+
             # Verify that sys.exit was called with exit code 1
             mock_exit.assert_called_once_with(1)

@@ -1,0 +1,4 @@
+[submodule "external/mail-client"]
+	path = external/mail-client
+	url = https://github.com/Davina0316/open-source-python.git
+	branch = inbox-impl

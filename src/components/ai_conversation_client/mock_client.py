@@ -8,7 +8,6 @@ import json
 import os
 import uuid
 from datetime import datetime
-from typing import Dict, List, Optional, Union
 
 from src.components.ai_conversation_client.api import AIConversationClient
 from src.components.ai_conversation_client.factory import AIClientFactory
@@ -52,21 +51,21 @@ class MockAIClient(AIConversationClient):
         },
     ]
 
-    def __init__(self, api_key: Optional[str] = None) -> None:
+    def __init__(self, api_key: str | None = None) -> None:
         """Initialize a new mock AI conversation client instance.
 
         Args:
-            api_key: Optional API key (not actually used but included for 
+            api_key: Optional API key (not actually used but included for
                 interface compatibility).
         """
         self.api_key = api_key or "mock-api-key"
-        self._sessions: Dict[str, Dict] = {}
+        self._sessions: dict[str, dict] = {}
         self._response_index = 0
-        self._custom_responses: Dict[str, str] = {}
+        self._custom_responses: dict[str, str] = {}
 
     def send_message(
-        self, session_id: str, message: str, attachments: Optional[List[str]] = None
-    ) -> Dict[str, Union[str, List[str], datetime]]:
+        self, session_id: str, message: str, attachments: list[str] | None = None
+    ) -> dict[str, str | list[str] | datetime]:
         """Send a message to the mock AI and get a pre-defined response.
 
         Args:
@@ -143,8 +142,8 @@ class MockAIClient(AIConversationClient):
         }
 
     def get_chat_history(
-        self, session_id: str, limit: Optional[int] = None
-    ) -> List[Dict[str, Union[str, datetime]]]:
+        self, session_id: str, limit: int | None = None
+    ) -> list[dict[str, str | datetime]]:
         """Retrieve conversation history for a session.
 
         Args:
@@ -167,7 +166,7 @@ class MockAIClient(AIConversationClient):
 
         return history
 
-    def start_new_session(self, user_id: str, model: Optional[str] = None) -> str:
+    def start_new_session(self, user_id: str, model: str | None = None) -> str:
         """Start a new conversation session.
 
         Args:
@@ -220,7 +219,7 @@ class MockAIClient(AIConversationClient):
         self._sessions[session_id]["active"] = False
         return True
 
-    def list_available_models(self) -> List[Dict[str, Union[str, List[str], int, bool]]]:
+    def list_available_models(self) -> list[dict[str, str | list[str] | int | bool]]:
         """Get available mock AI models.
 
         Returns:
@@ -259,7 +258,7 @@ class MockAIClient(AIConversationClient):
         return True
 
     def attach_file(
-        self, session_id: str, file_path: str, description: Optional[str] = None
+        self, session_id: str, file_path: str, description: str | None = None
     ) -> bool:
         """Simulate attaching a file to the conversation context.
 
@@ -296,7 +295,7 @@ class MockAIClient(AIConversationClient):
 
         return True
 
-    def get_usage_metrics(self, session_id: str) -> Dict[str, Union[int, float]]:
+    def get_usage_metrics(self, session_id: str) -> dict[str, int | float]:
         """Get usage statistics for a session.
 
         Args:
@@ -403,7 +402,9 @@ class MockAIClient(AIConversationClient):
             output = f"Session ID: {session_id}\n"
             output += f"User ID: {self._sessions[session_id]['user_id']}\n"
             output += f"Model: {self._sessions[session_id]['model']}\n"
-            output += f"Created: {self._sessions[session_id]['created_at'].isoformat()}\n\n"
+            output += (
+                f"Created: {self._sessions[session_id]['created_at'].isoformat()}\n\n"
+            )
             output += "Conversation:\n\n"
 
             for msg in history:
@@ -414,7 +415,9 @@ class MockAIClient(AIConversationClient):
             return output
 
         else:
-            raise ValueError(f"Unsupported export format: {format}. Supported formats: json, txt")
+            raise ValueError(
+                f"Unsupported export format: {format}. Supported formats: json, txt"
+            )
 
     # Testing-specific methods (not part of the interface)
 
@@ -429,4 +432,4 @@ class MockAIClient(AIConversationClient):
 
 
 # Register the mock client with the factory
-AIClientFactory.register_client("mock", MockAIClient) 
+AIClientFactory.register_client("mock", MockAIClient)

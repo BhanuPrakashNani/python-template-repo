@@ -4,7 +4,6 @@ import json
 import os
 import uuid
 from datetime import datetime
-from typing import Any, Tuple
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
@@ -154,16 +153,16 @@ class TestCerebrasClient:
         # Check that the message was added to the history
         history = cerebras_client.get_chat_history(session_id)
         assert len(history) == 3  # System message, user message, and AI response
-        
+
         # Find the messages by sender
         system_messages = [msg for msg in history if msg["sender"] == "system"]
         user_messages = [msg for msg in history if msg["sender"] == "user"]
         ai_messages = [msg for msg in history if msg["sender"] == "assistant"]
-        
+
         assert len(system_messages) == 1
         assert len(user_messages) == 1
         assert len(ai_messages) == 1
-        
+
         assert user_messages[0]["content"] == "Test message"
         assert ai_messages[0]["content"] == "This is a test response from the AI."
 
@@ -342,16 +341,17 @@ class TestCerebrasClient:
         assert "Test message" in json_str
         assert "test-msg-id" in json_str
 
+
 # Add new tests for error handling scenarios
 class TestErrorHandling:
     """Test suite for error handling in CerebrasClient."""
 
     @pytest.fixture
-    def cerebras_client(self) -> Tuple[CerebrasClient, str]:
+    def cerebras_client(self) -> tuple[CerebrasClient, str]:
         """Create a CerebrasClient with mocked API key."""
         with patch.dict(os.environ, {"CEREBRAS_API_KEY": "test-key"}):
             client = CerebrasClient()
-            
+
             # Create a test session
             session_id = "test-session-id"
             client._sessions[session_id] = {
@@ -364,173 +364,189 @@ class TestErrorHandling:
                 "metrics": {"token_count": 0, "api_calls": 0, "cost_estimate": 0.0},
             }
             return client, session_id
-    
-    def test_send_message_empty_message(self, cerebras_client: Tuple[CerebrasClient, str]) -> None:
+
+    def test_send_message_empty_message(
+        self, cerebras_client: tuple[CerebrasClient, str]
+    ) -> None:
         """Test error handling when sending an empty message."""
         client, session_id = cerebras_client
-        
+
         with pytest.raises(ValueError) as e:
             client.send_message(session_id, "")
-        
+
         assert "Message cannot be empty" in str(e.value)
-        
+
         with pytest.raises(ValueError) as e:
             client.send_message(session_id, "   ")
-        
+
         assert "Message cannot be empty" in str(e.value)
-    
-    def test_send_message_empty_session_id(self, cerebras_client: Tuple[CerebrasClient, str]) -> None:
+
+    def test_send_message_empty_session_id(
+        self, cerebras_client: tuple[CerebrasClient, str]
+    ) -> None:
         """Test error handling when sending a message with an empty session ID."""
         client, _ = cerebras_client
-        
+
         with pytest.raises(ValueError) as e:
             client.send_message("", "Test message")
-        
+
         assert "Session ID cannot be empty" in str(e.value)
-    
-    def test_send_message_inactive_session(self, cerebras_client: Tuple[CerebrasClient, str]) -> None:
+
+    def test_send_message_inactive_session(
+        self, cerebras_client: tuple[CerebrasClient, str]
+    ) -> None:
         """Test error handling when sending a message to an inactive session."""
         client, session_id = cerebras_client
-        
+
         # Mark the session as inactive
         client._sessions[session_id]["active"] = False
-        
+
         with pytest.raises(ValueError) as e:
             client.send_message(session_id, "Test message")
-        
+
         assert "no longer active" in str(e.value)
-    
-    def test_send_message_invalid_attachment(self, cerebras_client: Tuple[CerebrasClient, str]) -> None:
+
+    def test_send_message_invalid_attachment(
+        self, cerebras_client: tuple[CerebrasClient, str]
+    ) -> None:
         """Test error handling when sending a message with an invalid attachment."""
         client, session_id = cerebras_client
-        
+
         with pytest.raises(FileNotFoundError) as e:
             client.send_message(session_id, "Test message", ["nonexistent_file.txt"])
-        
+
         assert "Attachment file not found" in str(e.value)
-    
-    def test_network_timeout(self, cerebras_client: Tuple[CerebrasClient, str]) -> None:
+
+    def test_network_timeout(self, cerebras_client: tuple[CerebrasClient, str]) -> None:
         """Test error handling when the API request times out."""
         client, session_id = cerebras_client
-        
-        with patch('requests.post') as mock_post:
+
+        with patch("requests.post") as mock_post:
             mock_post.side_effect = Timeout("Request timed out")
-            
+
             with pytest.raises(RuntimeError) as e:
                 client.send_message(session_id, "Test message")
-            
+
             assert "timed out" in str(e.value)
-    
-    def test_network_connection_error(self, cerebras_client: Tuple[CerebrasClient, str]) -> None:
+
+    def test_network_connection_error(
+        self, cerebras_client: tuple[CerebrasClient, str]
+    ) -> None:
         """Test error handling when a connection error occurs."""
         client, session_id = cerebras_client
-        
-        with patch('requests.post') as mock_post:
+
+        with patch("requests.post") as mock_post:
             mock_post.side_effect = ConnectionError("Connection error")
-            
+
             with pytest.raises(RuntimeError) as e:
                 client.send_message(session_id, "Test message")
-            
+
             assert "Failed to connect" in str(e.value)
-    
-    def test_api_auth_error(self, cerebras_client: Tuple[CerebrasClient, str]) -> None:
+
+    def test_api_auth_error(self, cerebras_client: tuple[CerebrasClient, str]) -> None:
         """Test error handling when an authentication error occurs."""
         client, session_id = cerebras_client
-        
-        with patch('requests.post') as mock_post:
+
+        with patch("requests.post") as mock_post:
             mock_response = Mock()
             mock_response.status_code = 401
             mock_post.return_value = mock_response
-            
+
             with pytest.raises(RuntimeError) as e:
                 client.send_message(session_id, "Test message")
-            
+
             assert "Authentication failed" in str(e.value)
-    
-    def test_api_rate_limit(self, cerebras_client: Tuple[CerebrasClient, str]) -> None:
+
+    def test_api_rate_limit(self, cerebras_client: tuple[CerebrasClient, str]) -> None:
         """Test error handling when a rate limit error occurs."""
         client, session_id = cerebras_client
-        
-        with patch('requests.post') as mock_post:
+
+        with patch("requests.post") as mock_post:
             mock_response = Mock()
             mock_response.status_code = 429
             mock_post.return_value = mock_response
-            
+
             with pytest.raises(RuntimeError) as e:
                 client.send_message(session_id, "Test message")
-            
+
             assert "Rate limit exceeded" in str(e.value)
-    
-    def test_api_server_error(self, cerebras_client: Tuple[CerebrasClient, str]) -> None:
+
+    def test_api_server_error(
+        self, cerebras_client: tuple[CerebrasClient, str]
+    ) -> None:
         """Test error handling when a server error occurs."""
         client, session_id = cerebras_client
-        
-        with patch('requests.post') as mock_post:
+
+        with patch("requests.post") as mock_post:
             mock_response = Mock()
             mock_response.status_code = 500
             mock_post.return_value = mock_response
-            
+
             with pytest.raises(RuntimeError) as e:
                 client.send_message(session_id, "Test message")
-            
+
             assert "server error" in str(e.value)
-    
-    def test_invalid_json_response(self, cerebras_client: Tuple[CerebrasClient, str]) -> None:
+
+    def test_invalid_json_response(
+        self, cerebras_client: tuple[CerebrasClient, str]
+    ) -> None:
         """Test error handling when an invalid JSON response is received."""
         client, session_id = cerebras_client
-        
-        with patch('requests.post') as mock_post:
+
+        with patch("requests.post") as mock_post:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json.side_effect = json.JSONDecodeError("Invalid JSON", "", 0)
             mock_post.return_value = mock_response
-            
+
             with pytest.raises(RuntimeError) as e:
                 client.send_message(session_id, "Test message")
-            
+
             assert "Invalid JSON" in str(e.value)
-    
-    def test_malformed_response(self, cerebras_client: Tuple[CerebrasClient, str]) -> None:
+
+    def test_malformed_response(
+        self, cerebras_client: tuple[CerebrasClient, str]
+    ) -> None:
         """Test error handling when a malformed response is received."""
         client, session_id = cerebras_client
-        
-        with patch('requests.post') as mock_post:
+
+        with patch("requests.post") as mock_post:
             mock_response = Mock()
             mock_response.status_code = 200
             # Missing 'choices' in the response
             mock_response.json.return_value = {"usage": {"total_tokens": 10}}
             mock_post.return_value = mock_response
-            
+
             with pytest.raises(RuntimeError) as e:
                 client.send_message(session_id, "Test message")
-            
+
             assert "Invalid response format" in str(e.value)
-    
+
     def test_start_new_session_empty_user_id(self) -> None:
         """Test error handling when starting a session with an empty user ID."""
         with patch.dict(os.environ, {"CEREBRAS_API_KEY": "test-key"}):
             client = CerebrasClient()
-            
+
             with pytest.raises(ValueError) as e:
                 client.start_new_session("")
-            
+
             assert "User ID cannot be empty" in str(e.value)
-            
+
             with pytest.raises(ValueError) as e:
                 client.start_new_session("   ")
-            
+
             assert "User ID cannot be empty" in str(e.value)
-    
+
     def test_start_new_session_invalid_model(self) -> None:
         """Test error handling when starting a session with an invalid model."""
         with patch.dict(os.environ, {"CEREBRAS_API_KEY": "test-key"}):
             client = CerebrasClient()
-            
+
             # Override list_available_models to return a limited set
             client.list_available_models = lambda: [{"id": "valid-model"}]
-            
+
             with pytest.raises(ValueError) as e:
                 client.start_new_session("test-user", "invalid-model")
-            
+
             assert "not available" in str(e.value)
             assert "valid-model" in str(e.value)

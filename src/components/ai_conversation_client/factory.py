@@ -5,7 +5,7 @@ It implements dependency injection for client implementations, making it easier 
 implementations or configure clients as needed.
 """
 
-from typing import Dict, Optional, Type, Union, Any
+from typing import Any
 
 from src.components.ai_conversation_client.api import AIConversationClient
 
@@ -18,11 +18,11 @@ class AIClientFactory:
     implementations.
     """
 
-    _client_registry: Dict[str, Type[AIConversationClient]] = {}
+    _client_registry: dict[str, type[AIConversationClient]] = {}
 
     @classmethod
     def register_client(
-        cls, client_name: str, client_class: Type[AIConversationClient]
+        cls, client_name: str, client_class: type[AIConversationClient]
     ) -> None:
         """Register a client implementation with the factory.
 
@@ -34,7 +34,7 @@ class AIClientFactory:
 
     @classmethod
     def create_client(
-        cls, client_name: str, api_key: str | None = None, **kwargs: Dict[str, Any]
+        cls, client_name: str, api_key: str | None = None, **kwargs: dict[str, Any]
     ) -> AIConversationClient:
         """Create a new client instance.
 
@@ -60,10 +60,10 @@ class AIClientFactory:
         return client_class(api_key=api_key, **kwargs)
 
     @classmethod
-    def list_available_clients(cls) -> Dict[str, Type[AIConversationClient]]:
+    def list_available_clients(cls) -> dict[str, type[AIConversationClient]]:
         """Get all registered client implementations.
 
         Returns:
             Dictionary mapping client names to their implementing classes.
         """
-        return cls._client_registry.copy() 
+        return cls._client_registry.copy()
