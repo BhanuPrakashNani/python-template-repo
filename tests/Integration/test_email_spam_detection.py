@@ -123,8 +123,20 @@ class TestEmailSpamDetection(unittest.TestCase):
         # Create mock inbox client
         mock_inbox = MagicMock()
         mock_inbox.get_emails_list.return_value = [
-            {"id": "test1", "subject": "Test Subject 1", "body": "Test Body 1", "sender": "test1@example.com", "date": "2023-05-01"},
-            {"id": "test2", "subject": "Test Subject 2", "body": "Test Body 2", "sender": "test2@example.com", "date": "2023-05-02"}
+            {
+                "id": "test1",
+                "subject": "Test Subject 1",
+                "body": "Test Body 1",
+                "sender": "test1@example.com",
+                "date": "2023-05-01"
+            },
+            {
+                "id": "test2",
+                "subject": "Test Subject 2",
+                "body": "Test Body 2",
+                "sender": "test2@example.com",
+                "date": "2023-05-02"
+            }
         ]
 
         # Initialize EmailAnalyzer

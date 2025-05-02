@@ -25,7 +25,14 @@ class AIClient:
 
 class Email:
     """Mock Email class for testing."""
-    def __init__(self, id: str, subject: str, body: str, sender: str = "", date: str = "") -> None:
+    def __init__(
+        self,
+        id: str,
+        subject: str,
+        body: str,
+        sender: str = "",
+        date: str = ""
+    ) -> None:
         self.id = id
         self.subject = subject
         self.body = body
@@ -138,13 +145,45 @@ def analyze_emails_for_spam(
         # Store result
         results.append({"mail_id": email.id, "pct_spam": spam_probability})
 
-    # Write to CSV
-    with open(output_file, "w", newline="") as csvfile:
-        fieldnames: List[str] = ["mail_id", "pct_spam"]
-        writer: csv.DictWriter = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        for result in results:
-            writer.writerow(result)
+    # Ensure the directory exists
+    output_dir = os.path.dirname(output_file)
+    if output_dir and not os.path.exists(output_dir):
+        try:
+            os.makedirs(output_dir, exist_ok=True)
+        except OSError as e:
+            logger.error(f"Error creating directory {output_dir}: {str(e)}")
+
+    # Write to CSV with error handling
+    try:
+        with open(output_file, "w", newline="") as csvfile:
+            fieldnames: List[str] = ["mail_id", "pct_spam"]
+            writer: csv.DictWriter = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for result in results:
+                writer.writerow(result)
+        # Verify file was created
+        if not os.path.exists(output_file):
+            logger.error(f"File {output_file} was not created successfully")
+    except (OSError, IOError) as e:
+        logger.error(f"Error writing to CSV file {output_file}: {str(e)}")
+        # Try writing to a temp file as a fallback
+        try:
+            temp_file = os.path.join(
+                os.path.dirname(os.path.abspath(__file__)),
+                "temp_" + os.path.basename(output_file)
+            )
+            with open(temp_file, "w", newline="") as csvfile:
+                fieldnames: List[str] = ["mail_id", "pct_spam"]
+                writer: csv.DictWriter = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                writer.writeheader()
+                for result in results:
+                    writer.writerow(result)
+            logger.info(f"Wrote results to temporary file: {temp_file}")
+            # Try to copy to the original location
+            import shutil
+            shutil.copy2(temp_file, output_file)
+        except Exception as e2:
+            logger.error(f"Error writing to temporary file: {str(e2)}")
 
     return results
 

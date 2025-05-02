@@ -59,17 +59,17 @@ class TestCLI(unittest.TestCase):
             "api_calls": 1,
             "cost_estimate": 0.0025
         }
-        
+
         # Call the function directly
         display_metrics(metrics)
-        
+
         # Verify output
         output = self.stdout_capture.getvalue()
         self.assertIn("Usage Metrics:", output)
         self.assertIn("Token count: 125", output)
         self.assertIn("API calls: 1", output)
         self.assertIn("Cost estimate: $0.0025", output)
-    
+
     @patch('argparse.ArgumentParser.parse_args')
     @patch('src.components.ai_conversation_client.cli.CerebrasClient')
     def test_models_command(
@@ -99,15 +99,15 @@ class TestCLI(unittest.TestCase):
             }
         ]
         mock_client_class.return_value = mock_client
-        
+
         # Configure mock args
         mock_args = MagicMock()
         mock_args.command = "models"
         mock_parse_args.return_value = mock_args
-        
+
         # Run the CLI
         main()
-        
+
         # Verify output
         output = self.stdout_capture.getvalue()
         self.assertIn("Available models:", output)
@@ -115,7 +115,7 @@ class TestCLI(unittest.TestCase):
         self.assertIn("Model 2", output)
         self.assertIn("Max tokens: 8000", output)
         self.assertIn("Max tokens: 16000", output)
-    
+
     @patch('argparse.ArgumentParser.parse_args')
     @patch('src.components.ai_conversation_client.cli.CerebrasClient')
     @patch('builtins.open')
@@ -146,10 +146,10 @@ class TestCLI(unittest.TestCase):
         }]})
         mock_client.export_chat_history.return_value = export_data
         mock_client_class.return_value = mock_client
-        
+
         # Create temp output file
         output_file = os.path.join(self.temp_dir.name, "export.json")
-        
+
         # Configure mock args
         mock_args = MagicMock()
         mock_args.command = "export"
@@ -157,18 +157,18 @@ class TestCLI(unittest.TestCase):
         mock_args.format = "json"
         mock_args.output = output_file
         mock_parse_args.return_value = mock_args
-        
+
         # Run the CLI with patched sys.exit to prevent test from exiting
         with patch('sys.exit') as mock_exit:
             main()
             mock_exit.assert_not_called()  # Verify sys.exit wasn't called
-        
+
         # Verify client method was called
         mock_client.export_chat_history.assert_called_once_with(
             "test_session",
             "json"
         )
-    
+
     @patch('argparse.ArgumentParser.parse_args')
     @patch('builtins.input')
     @patch('src.components.ai_conversation_client.cli.CerebrasClient')
@@ -186,23 +186,23 @@ class TestCLI(unittest.TestCase):
         mock_client.send_message.return_value = {
             "response": "I'm an AI assistant. How can I help you today?"
         }
-        # Don't check get_usage_metrics call since it might 
+        # Don't check get_usage_metrics call since it might
         # not be called in all implementations
         mock_client_class.return_value = mock_client
-        
+
         # Mock user input (exit after one message)
         mock_input.side_effect = ["Hello, AI!", "exit"]
-        
+
         # Configure mock args
         mock_args = MagicMock()
         mock_args.command = "chat"
         mock_args.model = "test-model"
         mock_args.session_id = None
         mock_parse_args.return_value = mock_args
-        
+
         # Run the CLI
         main()
-        
+
         # Use any_call instead of assert_called_once_with to be more flexible
         self.assertTrue(mock_client.start_new_session.called)
         # Check that the call included the model parameter
@@ -213,43 +213,46 @@ class TestCLI(unittest.TestCase):
             if 'model' in kwargs and kwargs['model'] == 'test-model':
                 model_param_present = True
                 break
-        self.assertTrue(model_param_present, "start_new_session was not called with model='test-model'")
-        
+        self.assertTrue(
+            model_param_present,
+            "start_new_session was not called with model='test-model'"
+        )
+
         # Verify message was sent
         mock_client.send_message.assert_called_with(
             "test_session",
             "Hello, AI!"
         )
-        
+
         # Verify output
         output = self.stdout_capture.getvalue()
         self.assertIn("I'm an AI assistant", output)
-    
+
     @patch('argparse.ArgumentParser.parse_args')
     @patch('src.components.ai_conversation_client.cli.os.path.exists')
     @patch('src.components.ai_conversation_client.cli.os.environ')
     def test_missing_api_key(
-        self, 
-        mock_environ: Any, 
+        self,
+        mock_environ: Any,
         mock_path_exists: Any,
         mock_parse_args: Any
     ) -> None:
         """Test handling of missing API key"""
         # Mock environment to remove API key
         mock_environ.get.return_value = None
-        
+
         # Mock path.exists to return False for .env.local
         mock_path_exists.return_value = False
-        
+
         # Configure mock args
         mock_args = MagicMock()
         mock_args.command = "models"
         mock_parse_args.return_value = mock_args
-        
+
         # Run the CLI, expecting exit
         with self.assertRaises(SystemExit):
             main()
-        
+
         # Verify error message
         output = self.stdout_capture.getvalue()
         error_msg = "Error: CEREBRAS_API_KEY environment variable is required"
