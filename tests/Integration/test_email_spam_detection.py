@@ -3,12 +3,25 @@
 import os
 from unittest import TestCase
 
-from dotenv import load_dotenv
 
 from src.integration.email_analyzer import Email, EmailAnalyzer
 from src.components.ai_conversation_client.factory import AIClientFactory
 from src.components.ai_conversation_client.test_client import TestCerebrasClient
 
+# Make dotenv import optional to prevent CI errors
+try:
+    from dotenv import load_dotenv
+    HAS_DOTENV = True
+except ImportError:
+    HAS_DOTENV = False
+
+def setup_environment() -> None:
+    """Set up environment variables for testing"""
+    if HAS_DOTENV:
+        load_dotenv('.env.local')
+    # Add fallback for CI where dotenv might not be available
+    if not os.getenv("CEREBRAS_API_KEY"):
+        os.environ["CEREBRAS_API_KEY"] = "test_api_key"
 
 class TestEmailSpamDetection(TestCase):
     """Test suite for email spam detection integration."""
@@ -16,11 +29,7 @@ class TestEmailSpamDetection(TestCase):
     def setUp(self) -> None:
         """Set up test fixtures."""
         # Load environment variables
-        dotenv_path = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-            ".env.local"
-        )
-        load_dotenv(dotenv_path)
+        setup_environment()
 
         # Get API key if available for real API tests
         api_key = os.environ.get("CEREBRAS_API_KEY", "").strip()

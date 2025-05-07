@@ -6,16 +6,28 @@ import csv
 
 from src.integration.email_analyzer import Email, EmailAnalyzer
 from src.components.ai_conversation_client.test_client import TestCerebrasClient
-from dotenv import load_dotenv
 
+# Make dotenv import optional to prevent CI errors
+try:
+    from dotenv import load_dotenv
+    HAS_DOTENV = True
+except ImportError:
+    HAS_DOTENV = False
+
+def setup_environment() -> None:
+    """Set up environment variables for testing"""
+    if HAS_DOTENV:
+        load_dotenv('.env.local')
+    # Add fallback for CI where dotenv might not be available
+    if not os.getenv("CEREBRAS_API_KEY"):
+        os.environ["CEREBRAS_API_KEY"] = "test_api_key"
 
 class TestEmailSpamE2E(unittest.TestCase):
     """End-to-end test for the email spam analysis workflow"""
 
     def setUp(self) -> None:
         """Setup test environment"""
-        # Load API key from .env.local
-        load_dotenv('.env.local')
+        setup_environment()
 
         # Create test emails with varying spam characteristics
         self.test_emails = [
