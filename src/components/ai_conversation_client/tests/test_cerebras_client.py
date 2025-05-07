@@ -231,10 +231,112 @@ class TestCerebrasClient:
     def test_get_chat_history_nonexistent_session(
         self, cerebras_client: CerebrasClient
     ) -> None:
-        """Test get_chat_history raises an error for a nonexistent session."""
+        """Test get_chat_history with a nonexistent session ID."""
         with pytest.raises(ValueError) as excinfo:
-            cerebras_client.get_chat_history("nonexistent-session")
-        assert "Session nonexistent-session does not exist" in str(excinfo.value)
+            cerebras_client.get_chat_history("nonexistent_session_id")
+        assert "does not exist" in str(excinfo.value)
+
+    def test_get_chat_history_with_limit(self, cerebras_client: CerebrasClient) -> None:
+        """Test get_chat_history with a limit parameter."""
+        # Create a session and add some messages
+        user_id = "test_user_limit"
+        session_id = cerebras_client.start_new_session(user_id)
+
+        # Manually add messages to the history
+        cerebras_client._sessions[session_id]["history"] = [
+            {
+                "id": str(uuid.uuid4()),
+                "content": "Message 1",
+                "sender": "user",
+                "timestamp": datetime.now(),
+            },
+            {
+                "id": str(uuid.uuid4()),
+                "content": "Response 1",
+                "sender": "assistant",
+                "timestamp": datetime.now(),
+            },
+            {
+                "id": str(uuid.uuid4()),
+                "content": "Message 2",
+                "sender": "user",
+                "timestamp": datetime.now(),
+            },
+            {
+                "id": str(uuid.uuid4()),
+                "content": "Response 2",
+                "sender": "assistant",
+                "timestamp": datetime.now(),
+            },
+        ]
+
+        # Get history with limit
+        history_limited = cerebras_client.get_chat_history(session_id, limit=2)
+
+        # Should return only the last 2 messages
+        assert len(history_limited) == 2
+        assert history_limited[0]["content"] == "Message 2"
+        assert history_limited[1]["content"] == "Response 2"
+
+    def test_get_session_history(self, cerebras_client: CerebrasClient) -> None:
+        """Test get_session_history returns the expected session history."""
+        # Create a session and add some messages
+        user_id = "test_session_history"
+        session_id = cerebras_client.start_new_session(user_id)
+
+        # Manually add messages to the history
+        messages = [
+            {
+                "id": str(uuid.uuid4()),
+                "content": "Test message",
+                "sender": "user",
+                "timestamp": datetime.now(),
+            },
+            {
+                "id": str(uuid.uuid4()),
+                "content": "Test response",
+                "sender": "assistant",
+                "timestamp": datetime.now(),
+            },
+        ]
+        cerebras_client._sessions[session_id]["history"] = messages
+
+        # Get session history
+        history = cerebras_client.get_session_history(session_id)
+
+        # Verify
+        assert len(history) == 2
+        assert history[0]["content"] == "Test message"
+        assert history[1]["content"] == "Test response"
+
+    def test_get_session_history_nonexistent_session(
+        self, cerebras_client: CerebrasClient
+    ) -> None:
+        """Test get_session_history with a nonexistent session ID."""
+        with pytest.raises(ValueError) as excinfo:
+            cerebras_client.get_session_history("nonexistent_session_id")
+        assert "not found" in str(excinfo.value)
+
+    def test_end_session_success(self, cerebras_client: CerebrasClient) -> None:
+        """Test ending a session successfully."""
+        # Create a session
+        user_id = "test_end_session"
+        session_id = cerebras_client.start_new_session(user_id)
+
+        # End session
+        result = cerebras_client.end_session(session_id)
+
+        # Verify
+        assert result is True
+        assert cerebras_client._sessions[session_id]["active"] is False
+
+    def test_end_session_nonexistent(self, cerebras_client: CerebrasClient) -> None:
+        """Test ending a nonexistent session."""
+        # Try to end nonexistent session
+        result = cerebras_client.end_session("nonexistent_session_id")
+
+        # Verify
+        assert result is False
 
     def test_switch_model(self, cerebras_client: CerebrasClient) -> None:
         """Test switch_model changes the model for a session."""
@@ -257,6 +359,48 @@ class TestCerebrasClient:
         with pytest.raises(ValueError) as excinfo:
             cerebras_client.switch_model(session_id, "nonexistent-model")
         assert "Model nonexistent-model is not available" in str(excinfo.value)
+
+    def test_switch_model_success(self, cerebras_client: CerebrasClient) -> None:
+        """Test switching models successfully."""
+        # Create a session
+        user_id = "test_switch_model"
+        session_id = cerebras_client.start_new_session(user_id)
+
+        # Get an available model that's different from the default
+        models = cerebras_client.list_available_models()
+        new_model_id = None
+        for model in models:
+            if model["id"] != cerebras_client._sessions[session_id]["model"]:
+                new_model_id = model["id"]
+                break
+
+        assert new_model_id is not None, "Failed to find an alternative model"
+
+        # Switch model
+        result = cerebras_client.switch_model(session_id, new_model_id)
+
+        # Verify
+        assert result is True
+        assert cerebras_client._sessions[session_id]["model"] == new_model_id
+
+    def test_switch_model_nonexistent_session(
+        self, cerebras_client: CerebrasClient
+    ) -> None:
+        """Test switching models with a nonexistent session."""
+        with pytest.raises(ValueError) as excinfo:
+            cerebras_client.switch_model("nonexistent_session_id", "llama-3.1-8b")
+        assert "does not exist" in str(excinfo.value)
+
+    def test_switch_model_invalid_model(self, cerebras_client: CerebrasClient) -> None:
+        """Test switching to an invalid model."""
+        # Create a session
+        user_id = "test_invalid_model"
+        session_id = cerebras_client.start_new_session(user_id)
+
+        # Try to switch to invalid model
+        with pytest.raises(ValueError) as excinfo:
+            cerebras_client.switch_model(session_id, "nonexistent_model")
+        assert "not available" in str(excinfo.value)
 
     def test_summarize_conversation(self, cerebras_client: CerebrasClient) -> None:
         """Test summarize_conversation with a mocked API response."""
@@ -340,6 +484,262 @@ class TestCerebrasClient:
         assert user_id in json_str
         assert "Test message" in json_str
         assert "test-msg-id" in json_str
+
+    def test_get_usage_metrics(self, cerebras_client: CerebrasClient) -> None:
+        """Test getting usage metrics."""
+        # Create a session
+        user_id = "test_metrics"
+        session_id = cerebras_client.start_new_session(user_id)
+
+        # Initialize metrics
+        cerebras_client._sessions[session_id]["metrics"] = {
+            "token_count": 100,
+            "api_calls": 5,
+            "cost_estimate": 0.001
+        }
+
+        # Get metrics
+        metrics = cerebras_client.get_usage_metrics(session_id)
+
+        # Verify
+        assert metrics["token_count"] == 100
+        assert metrics["api_calls"] == 5
+        assert metrics["cost_estimate"] == 0.001
+
+    def test_get_usage_metrics_new_session(
+        self, cerebras_client: CerebrasClient
+    ) -> None:
+        """Test getting usage metrics for a new session with no metrics."""
+        # Create a session
+        user_id = "test_new_metrics"
+        session_id = cerebras_client.start_new_session(user_id)
+
+        # Remove metrics key
+        if "metrics" in cerebras_client._sessions[session_id]:
+            del cerebras_client._sessions[session_id]["metrics"]
+
+        # Get metrics
+        metrics = cerebras_client.get_usage_metrics(session_id)
+
+        # Verify default values
+        assert metrics["token_count"] == 0
+        assert metrics["api_calls"] == 0
+        assert metrics["cost_estimate"] == 0.0
+
+    def test_get_usage_metrics_nonexistent_session(
+        self, cerebras_client: CerebrasClient
+    ) -> None:
+        """Test getting usage metrics for a nonexistent session."""
+        with pytest.raises(ValueError) as excinfo:
+            cerebras_client.get_usage_metrics("nonexistent_session_id")
+        assert "does not exist" in str(excinfo.value)
+
+    def test_export_chat_history_json(self, cerebras_client: CerebrasClient) -> None:
+        """Test exporting chat history in JSON format."""
+        # Create a session with some messages
+        user_id = "test_export_json"
+        session_id = cerebras_client.start_new_session(user_id)
+
+        # Add a message
+        timestamp = datetime.now()
+        message_id = str(uuid.uuid4())
+        cerebras_client._sessions[session_id]["history"].append(
+            {
+                "id": message_id,
+                "content": "Test message",
+                "sender": "user",
+                "timestamp": timestamp,
+            }
+        )
+
+        # Export to JSON
+        json_export = cerebras_client.export_chat_history(session_id, "json")
+
+        # Parse and verify
+        data = json.loads(json_export)
+        assert data["session_id"] == session_id
+        assert data["user_id"] == user_id
+        assert len(data["messages"]) > 0
+        assert data["messages"][-1]["id"] == message_id
+        assert data["messages"][-1]["content"] == "Test message"
+
+    def test_export_chat_history_txt(self, cerebras_client: CerebrasClient) -> None:
+        """Test exporting chat history in text format."""
+        # Create a session with some messages
+        user_id = "test_export_txt"
+        session_id = cerebras_client.start_new_session(user_id)
+
+        # Add a message
+        cerebras_client._sessions[session_id]["history"].append(
+            {
+                "id": str(uuid.uuid4()),
+                "content": "Test message",
+                "sender": "user",
+                "timestamp": datetime.now(),
+            }
+        )
+
+        # Export to text
+        txt_export = cerebras_client.export_chat_history(session_id, "txt")
+
+        # Verify
+        assert "Session ID:" in txt_export
+        assert session_id in txt_export
+        assert "User ID:" in txt_export
+        assert user_id in txt_export
+        assert "User: Test message" in txt_export
+
+    def test_export_chat_history_invalid_format(
+        self, cerebras_client: CerebrasClient
+    ) -> None:
+        """Test exporting chat history with an invalid format."""
+        # Create a session
+        user_id = "test_invalid_format"
+        session_id = cerebras_client.start_new_session(user_id)
+
+        # Try to export with invalid format
+        with pytest.raises(ValueError) as excinfo:
+            cerebras_client.export_chat_history(session_id, "invalid_format")
+        assert "Unsupported export format" in str(excinfo.value)
+
+    def test_export_chat_history_nonexistent_session(
+        self, cerebras_client: CerebrasClient
+    ) -> None:
+        """Test exporting chat history for a nonexistent session."""
+        with pytest.raises(ValueError) as excinfo:
+            cerebras_client.export_chat_history("nonexistent_session_id", "json")
+        assert "does not exist" in str(excinfo.value)
+
+    def test_summarize_conversation_not_enough_history(
+        self, cerebras_client: CerebrasClient
+    ) -> None:
+        """Test summarizing a conversation with insufficient history."""
+        # Create a new session with minimal history
+        user_id = "test_summary_minimal"
+        session_id = cerebras_client.start_new_session(user_id)
+
+        # Should indicate not enough conversation
+        summary = cerebras_client.summarize_conversation(session_id)
+        assert "Not enough conversation" in summary
+
+    def test_summarize_conversation_success(
+        self, cerebras_client: CerebrasClient
+    ) -> None:
+        """Test successfully summarizing a conversation."""
+        # Create a session with sufficient history
+        user_id = "test_summary_success"
+        session_id = cerebras_client.start_new_session(user_id)
+
+        # Add messages to history
+        cerebras_client._sessions[session_id]["history"].extend([
+            {
+                "id": str(uuid.uuid4()),
+                "content": "Hello, how are you?",
+                "sender": "user",
+                "timestamp": datetime.now(),
+            },
+            {
+                "id": str(uuid.uuid4()),
+                "content": "I'm doing well, thanks for asking!",
+                "sender": "assistant",
+                "timestamp": datetime.now(),
+            },
+        ])
+
+        # Mock API response
+        with patch("requests.post") as mock_post:
+            mock_response = Mock()
+            mock_response.status_code = 200
+            mock_response.json.return_value = {
+                "choices": [{"message": {"content": "A friendly conversation."}}],
+                "usage": {"total_tokens": 20}
+            }
+            mock_post.return_value = mock_response
+
+            # Get summary
+            summary = cerebras_client.summarize_conversation(session_id)
+
+            # Verify
+            assert summary == "A friendly conversation."
+
+            # Verify metrics updated
+            assert cerebras_client._sessions[session_id]["metrics"]["token_count"] == 20
+            assert cerebras_client._sessions[session_id]["metrics"]["api_calls"] == 1
+
+    def test_summarize_conversation_api_error(
+        self, cerebras_client: CerebrasClient
+    ) -> None:
+        """Test handling of API errors when summarizing a conversation."""
+        # Create a session with sufficient history
+        user_id = "test_summary_error"
+        session_id = cerebras_client.start_new_session(user_id)
+
+        # Add messages to history
+        cerebras_client._sessions[session_id]["history"].extend([
+            {
+                "id": str(uuid.uuid4()),
+                "content": "Message 1",
+                "sender": "user",
+                "timestamp": datetime.now(),
+            },
+            {
+                "id": str(uuid.uuid4()),
+                "content": "Response 1",
+                "sender": "assistant",
+                "timestamp": datetime.now(),
+            },
+        ])
+
+        # Mock API error
+        with patch("requests.post") as mock_post:
+            mock_post.side_effect = requests.RequestException("Network error")
+
+            # Attempt to get summary
+            with pytest.raises(RuntimeError) as excinfo:
+                cerebras_client.summarize_conversation(session_id)
+
+            # Verify error message
+            assert "Failed to summarize conversation" in str(excinfo.value)
+
+    def test_summarize_conversation_nonexistent_session(
+        self, cerebras_client: CerebrasClient
+    ) -> None:
+        """Test summarizing a nonexistent session."""
+        with pytest.raises(ValueError) as excinfo:
+            cerebras_client.summarize_conversation("nonexistent_session_id")
+        assert "does not exist" in str(excinfo.value)
+
+    def test_attach_file_nonexistent_session(
+        self, cerebras_client: CerebrasClient
+    ) -> None:
+        """Test attaching a file to a nonexistent session."""
+        with pytest.raises(ValueError) as excinfo:
+            cerebras_client.attach_file("nonexistent_session_id", "file.txt")
+        assert "does not exist" in str(excinfo.value)
+
+    def test_attach_file_file_not_found(self, cerebras_client: CerebrasClient) -> None:
+        """Test attaching a nonexistent file."""
+        # Create a session
+        user_id = "test_attach_file"
+        session_id = cerebras_client.start_new_session(user_id)
+
+        # Try to attach a nonexistent file
+        with patch("os.path.exists", return_value=False):
+            with pytest.raises(FileNotFoundError) as excinfo:
+                cerebras_client.attach_file(session_id, "nonexistent_file.txt")
+            assert "File not found" in str(excinfo.value)
+
+    def test_attach_file_not_implemented(self, cerebras_client: CerebrasClient) -> None:
+        """Test that file attachment is not yet implemented."""
+        # Create a session
+        user_id = "test_attach_file_impl"
+        session_id = cerebras_client.start_new_session(user_id)
+
+        # Try to attach a file (mock that it exists)
+        with patch("os.path.exists", return_value=True):
+            with pytest.raises(NotImplementedError) as excinfo:
+                cerebras_client.attach_file(session_id, "test_file.txt")
+            assert "not yet implemented" in str(excinfo.value)
 
 
 # Add new tests for error handling scenarios
