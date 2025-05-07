@@ -5,6 +5,7 @@ import os
 import sys
 from typing import Dict, List, Optional, Any, Tuple
 from src.components.ai_conversation_client import get_client
+from datetime import datetime
 
 # Remove unavailable imports and define simple test versions
 # from src.ai.client import AIClient
@@ -25,7 +26,14 @@ class AIClient:
 
 class Email:
     """Mock Email class for testing."""
-    def __init__(self, id: str, subject: str, body: str, sender: str = "", date: str = "") -> None:
+    def __init__(
+        self,
+        id: str,
+        subject: str,
+        body: str,
+        sender: str = "",
+        date: str = ""
+    ) -> None:
         self.id = id
         self.subject = subject
         self.body = body
@@ -138,13 +146,45 @@ def analyze_emails_for_spam(
         # Store result
         results.append({"mail_id": email.id, "pct_spam": spam_probability})
 
-    # Write to CSV
-    with open(output_file, "w", newline="") as csvfile:
-        fieldnames: List[str] = ["mail_id", "pct_spam"]
-        writer: csv.DictWriter = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        for result in results:
-            writer.writerow(result)
+    # Ensure the directory exists
+    output_dir = os.path.dirname(output_file)
+    if output_dir and not os.path.exists(output_dir):
+        try:
+            os.makedirs(output_dir, exist_ok=True)
+        except OSError as e:
+            logger.error(f"Error creating directory {output_dir}: {str(e)}")
+
+    # Write to CSV with error handling
+    try:
+        with open(output_file, "w", newline="") as csvfile:
+            fieldnames: List[str] = ["mail_id", "pct_spam"]
+            writer: csv.DictWriter = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for result in results:
+                writer.writerow(result)
+        # Verify file was created
+        if not os.path.exists(output_file):
+            logger.error(f"File {output_file} was not created successfully")
+    except (OSError, IOError) as e:
+        logger.error(f"Error writing to CSV file {output_file}: {str(e)}")
+        # Try writing to a temp file as a fallback
+        try:
+            temp_file = os.path.join(
+                os.path.dirname(os.path.abspath(__file__)),
+                "temp_" + os.path.basename(output_file)
+            )
+            with open(temp_file, "w", newline="") as csvfile:
+                fieldnames: List[str] = ["mail_id", "pct_spam"]
+                writer: csv.DictWriter = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                writer.writeheader()
+                for result in results:
+                    writer.writerow(result)
+            logger.info(f"Wrote results to temporary file: {temp_file}")
+            # Try to copy to the original location
+            import shutil
+            shutil.copy2(temp_file, output_file)
+        except Exception as e2:
+            logger.error(f"Error writing to temporary file: {str(e2)}")
 
     return results
 
@@ -160,6 +200,7 @@ class EmailAnalyzer:
         """
         self.ai_client = ai_client
         self.session_id: Optional[str] = None
+        self.inbox_client = InboxClient()  # Add inbox_client attribute
 
     def get_emails(self, inbox_client: "InboxClient") -> List[Email]:
         """Fetch emails from the inbox client.
@@ -304,3 +345,137 @@ class EmailAnalyzer:
         if not values:
             return 0.0
         return sum(values) / len(values)
+
+    def analyze_emails(self, limit: int = 10) -> List[Dict[str, Any]]:
+        """Analyze emails to determine spam probability and category.
+
+        Args:
+            limit: Maximum number of emails to analyze
+
+        Returns:
+            List of dictionaries containing email analysis results
+        """
+        # Get emails
+        emails = self.inbox_client.get_emails()[:limit]
+
+        if not emails:
+            logger.warning("No emails found to analyze")
+            return []
+
+        # Ensure we have an active session
+        if not self.session_id:
+            self.session_id = self.ai_client.start_new_session("email_analyzer")
+            logger.info(f"Started new AI session: {self.session_id}")
+
+        # Analyze each email
+        results = []
+        for email in emails:
+            result = self.analyze_single_email(email)
+            results.append(result)
+
+        logger.info(f"Analyzed {len(results)} emails for spam")
+        return results
+
+    def analyze_single_email(self, email: Email) -> Dict[str, Any]:
+        """Analyze a single email for spam probability and category.
+
+        Args:
+            email: Email object to analyze.
+
+        Returns:
+            Dictionary with analysis results.
+        """
+        # Create a session if needed
+        if not self.session_id:
+            self.session_id = self.ai_client.start_new_session("email_analyzer")
+
+        # First prompt to get spam probability
+        probability_prompt = (
+            f"Analyze this email for spam probability on a scale of 0-100:\n\n"
+            f"Subject: {email.subject}\n"
+            f"From: {email.sender}\n"
+            f"Body: {email.body}\n\n"
+            f"Return ONLY a number between 0 and 100."
+        )
+
+        # Get spam probability
+        probability_response = self.ai_client.send_message(
+            self.session_id, probability_prompt
+        )
+
+        # Process spam probability
+        try:
+            spam_probability = int(probability_response["response"].strip())
+            if spam_probability < 0:
+                spam_probability = 0
+            elif spam_probability > 100:
+                spam_probability = 100
+        except (ValueError, TypeError):
+            # Default to 0 if we can't get a valid number
+            spam_probability = 0
+
+        # Second prompt to get category
+        category_prompt = (
+            f"Categorize this email into one of these categories: "
+            f"Business, Personal, Marketing, Social, Phishing, Other\n\n"
+            f"Subject: {email.subject}\n"
+            f"From: {email.sender}\n"
+            f"Body: {email.body}\n\n"
+            f"Return ONLY the category name."
+        )
+
+        # Get category
+        category_response = self.ai_client.send_message(
+            self.session_id, category_prompt
+        )
+
+        # Process category response
+        category = category_response["response"].strip()
+        # Normalize category to one of the expected values
+        valid_categories = [
+            "Business", "Personal", "Marketing", "Social", "Phishing", "Other"
+        ]
+        if category not in valid_categories:
+            category = "Other"
+
+        # Return result
+        return {
+            "email_id": email.id,
+            "subject": email.subject,
+            "sender": email.sender,
+            "spam_probability": spam_probability,
+            "category": category,
+            "timestamp": datetime.now().isoformat(),
+        }
+
+    def export_results(self, results: List[Dict[str, Any]], output_file: str) -> None:
+        """Export analysis results to a CSV file.
+
+        Args:
+            results: List of analysis result dictionaries
+            output_file: Path to save the CSV file
+        """
+        if not results:
+            logger.warning("No results to export")
+            return
+
+        # Convert to absolute path if it's not already
+        if not os.path.isabs(output_file):
+            output_file = os.path.abspath(output_file)
+
+        # Create parent directory if it doesn't exist
+        os.makedirs(os.path.dirname(output_file) or '.', exist_ok=True)
+
+        try:
+            # Write to CSV
+            with open(output_file, 'w', newline='') as csvfile:
+                fieldnames = list(results[0].keys())
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(results)
+
+            logger.info(f"Exported {len(results)} results to {output_file}")
+
+        except Exception as e:
+            logger.error(f"Failed to export results: {str(e)}")
+            raise
