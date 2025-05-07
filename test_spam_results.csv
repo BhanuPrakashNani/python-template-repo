@@ -1,5 +1,0 @@
-Email ID,Subject,Spam Score,Classification
-1,Congratulations! You've won a million dollars!,95.0,SPAM
-3,Urgent: Your Account Will Be Suspended,85.0,SPAM
-2,Team Meeting Notes,5.0,SAFE
-4,Weekly Team Meeting Agenda,10.0,SAFE
