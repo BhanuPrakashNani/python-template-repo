@@ -589,6 +589,23 @@ class CerebrasClient(AIConversationClient):
                 f"Unsupported export format: {format}. Supported formats: json, txt"
             )
 
+    def get_session_history(self, session_id: str) -> list[dict[str, Any]]:
+        """Get the history of a conversation session.
+
+        Args:
+            session_id: Unique identifier for the conversation session.
+
+        Returns:
+            List of message dictionaries.
+
+        Raises:
+            ValueError: If the session_id does not exist.
+        """
+        if session_id not in self._sessions:
+            raise ValueError(f"Session {session_id} not found")
+
+        return self._sessions[session_id]["history"]
+
 
 # Register the client with the factory
 AIClientFactory.register_client("cerebras", CerebrasClient)
